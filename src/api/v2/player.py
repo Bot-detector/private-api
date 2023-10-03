@@ -12,5 +12,5 @@ async def get_player(
     limit: int = Query(default=1_000, ge=0, le=100_000),
 ):
     player_model = Player()
-    data = await player_model.get_player(pl)
+    data = await player_model.get_player()
     return
