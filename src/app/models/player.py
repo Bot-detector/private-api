@@ -11,7 +11,9 @@ class Player:
     def __init__(self) -> None:
         pass
 
-    async def get_player(self, player_id: int, player_name: str, greater_than: bool, limit:int=1000):
+    async def get_player(
+        self, player_id: int, player_name: str, greater_than: bool, limit: int = 1_000
+    ):
         table = dbPlayer
         sql_select: Select = select(table)
         sql_select = sql_select.limit(1000)
@@ -28,5 +30,5 @@ class Player:
             session: AsyncSession
 
             result: AsyncResult = await session.execute(sql_select)
-
+            result = result.scalars().all()
         return jsonable_encoder(result)
