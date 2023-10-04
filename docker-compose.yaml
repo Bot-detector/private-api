@@ -65,8 +65,8 @@ services:
     networks:
       - botdetector-network
 
-  public_api:
-    container_name: public_api
+  private_api:
+    container_name: private_api
     build:
       context: .
       dockerfile: Dockerfile
@@ -87,6 +87,8 @@ services:
       - env=DEV
     # env_file:
     #   - .env
+    volumes:
+      - ./src:/project/src
     depends_on:
       - kafka_setup
       - mysql

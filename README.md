@@ -18,11 +18,13 @@ pip install -r requirements.txt
 ## linux
 make sure to have pip
 ```sh
-sudo apt install python3-pip
+sudo apt update -y && sudo apt upgrade -y
+sudo apt install python3.10-venv -y
+sudo apt install python3-pip -y
 ```
 ```sh
 python3 -m venv .venv
-source .venv\Scripts\activate
+source .venv/bin/activate
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```

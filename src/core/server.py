@@ -6,7 +6,6 @@ from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
 from src import api
-from src.core.kafka.report import report_engine
 from src.core.fastapi.middleware.logging import LoggingMiddleware
 
 from . import logging_config  # needed for log formatting
