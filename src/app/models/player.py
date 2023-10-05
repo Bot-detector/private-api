@@ -16,7 +16,7 @@ class Player:
     ):
         table = dbPlayer
         sql_select: Select = select(table)
-        sql_select = sql_select.limit(1000)
+        sql_select = sql_select.limit(limit)
 
         if player_name:
             sql_select = sql_select.where(dbPlayer.name >= player_name)
