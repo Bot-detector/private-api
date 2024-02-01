@@ -1,4 +1,3 @@
-import asyncio
 import logging
 
 from fastapi import FastAPI
@@ -8,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src import api
 from src.core.fastapi.middleware.logging import LoggingMiddleware
 
-from . import logging_config  # needed for log formatting
+
 
 logger = logging.getLogger(__name__)
 
