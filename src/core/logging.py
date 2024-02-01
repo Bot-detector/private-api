@@ -1,9 +1,7 @@
 import json
 import logging
 import sys
-import warnings
 
-from .config import settings
 
 # # log formatting
 formatter = logging.Formatter(
