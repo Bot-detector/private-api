@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from src.app.models.player import Player
+from src.app.repositories.player import Player
 
 router = APIRouter()
 
@@ -11,8 +11,10 @@ async def get_player(
     greater_than: bool = None,
     limit: int = Query(default=1_000, ge=0, le=100_000),
 ):
-    player_model = Player()
-    data = await player_model.get_player(
+    # TODO: make use of abstract base class
+    repo = Player()
+
+    data = await repo.get_player(
         player_id=player_id,
         player_name=player_name,
         greater_than=greater_than,

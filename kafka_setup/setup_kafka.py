@@ -4,7 +4,6 @@ from kafka.admin import NewTopic, KafkaAdminClient
 from kafka import KafkaProducer
 import os
 import zipfile
-import time
 
 
 def create_topics():
