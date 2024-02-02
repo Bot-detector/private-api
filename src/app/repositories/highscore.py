@@ -35,3 +35,9 @@ class HighscoreLatest(AbstractAPI):
         sql = sql.where(self.table.Player_id > start)
         sql = sql.limit(limit)
         return await self._simple_execute(sql)
+
+    async def delete(self, id):
+        pass
+
+    async def update(self, id, data):
+        pass

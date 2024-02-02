@@ -37,3 +37,4 @@ sudo apt install python3.10-venv -y
 python3 -m venv .venv
 touch .venv\bin\activate
 ```
+```sh
