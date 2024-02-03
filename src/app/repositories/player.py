@@ -27,7 +27,7 @@ class Player:
             sql = sql.where(dbPlayer.name >= player_name)
 
         if label_id:
-            sql = sql.where(dbPlayer.label_id >= label_id)
+            sql = sql.where(dbPlayer.label_id == label_id)
 
         comparison = (
             (dbPlayer.id >= player_id) if greater_than else (dbPlayer.id == player_id)
