@@ -260,7 +260,7 @@ CREATE TABLE playerHiscoreDataLatest (
   sarachnis int DEFAULT NULL,
   scorpia int DEFAULT NULL,
   skotizo int DEFAULT NULL,
-  Tempoross int NOT NULL,
+  Tempoross int DEFAULT NULL,
   the_gauntlet int DEFAULT NULL,
   the_corrupted_gauntlet int DEFAULT NULL,
   theatre_of_blood int DEFAULT NULL,

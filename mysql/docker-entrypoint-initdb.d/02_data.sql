@@ -357,3 +357,17 @@ CREATE PROCEDURE INSERTROWS(NUM INT) BEGIN
 DELIMITER ;
 
 CALL InsertRows(250);
+
+-- Inserting 10 records starting from id 1
+INSERT INTO playerHiscoreDataLatest (id, timestamp, ts_date, Player_id, total, attack, defence, strength, hitpoints, ranged, prayer)
+VALUES
+(1, NOW(), CURDATE(), 1, 1000, 70, 60, 80, 75, 65, 70),
+(2, NOW(), CURDATE(), 2, 1200, 80, 70, 90, 85, 75, 80),
+(3, NOW(), CURDATE(), 3, 800, 60, 50, 70, 65, 55, 60),
+(4, NOW(), CURDATE(), 4, 1500, 90, 80, 100, 95, 85, 90),
+(5, NOW(), CURDATE(), 5, 1100, 75, 65, 85, 80, 70, 75),
+(6, NOW(), CURDATE(), 6, 1300, 85, 75, 95, 90, 80, 85),
+(7, NOW(), CURDATE(), 7, 950, 65, 55, 75, 70, 60, 65),
+(8, NOW(), CURDATE(), 8, 1700, 95, 85, 105, 100, 90, 95),
+(9, NOW(), CURDATE(), 9, 1000, 70, 60, 80, 75, 65, 70),
+(10, NOW(), CURDATE(), 10, 1200, 80, 70, 90, 85, 75, 80);

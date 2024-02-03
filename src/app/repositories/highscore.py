@@ -23,21 +23,27 @@ class HighscoreLatest(AbstractAPI):
             session: AsyncSession
 
             result: AsyncResult = await session.execute(sql)
-            result = result.scalars().all()
+            result = result.all()
         return jsonable_encoder(result)
 
     async def get(self, id: int):
         sql: Select = select(self.table, Player.name)
         sql = sql.join(target=Player, onclause=self.table.Player_id == Player.id)
         sql = sql.where(self.table.Player_id == id)
-        return await self._simple_execute(sql)
+        data: list[dict] = await self._simple_execute(sql)
+        for d in data:
+            d["PlayerHiscoreDataLatest"]["name"] = d.pop("name")
+        return data
 
     async def get_many(self, start: int, limit: int = 5000):
         sql: Select = select(self.table, Player.name)
         sql = sql.join(target=Player, onclause=self.table.Player_id == Player.id)
         sql = sql.where(self.table.Player_id > start)
         sql = sql.limit(limit)
-        return await self._simple_execute(sql)
+        data: list[dict] = await self._simple_execute(sql)
+        for d in data:
+            d["PlayerHiscoreDataLatest"]["name"] = d.pop("name")
+        return data
 
     async def delete(self, id):
         pass
