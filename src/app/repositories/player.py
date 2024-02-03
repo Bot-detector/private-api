@@ -2,7 +2,7 @@ from src.core.database.models.player import Player as dbPlayer
 from src.core.database.database import SessionFactory
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncResult
 from sqlalchemy.sql.expression import Select
 from fastapi.encoders import jsonable_encoder
 
