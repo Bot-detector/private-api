@@ -33,6 +33,7 @@ class HighscoreLatest(AbstractAPI):
         data: list[dict] = await self._simple_execute(sql)
         for d in data:
             d["PlayerHiscoreDataLatest"]["name"] = d.pop("name")
+            d = d["PlayerHiscoreDataLatest"]
         return data
 
     async def get_many(self, start: int, limit: int = 5000):
@@ -43,6 +44,7 @@ class HighscoreLatest(AbstractAPI):
         data: list[dict] = await self._simple_execute(sql)
         for d in data:
             d["PlayerHiscoreDataLatest"]["name"] = d.pop("name")
+            d = d["PlayerHiscoreDataLatest"]
         return data
 
     async def delete(self, id):
