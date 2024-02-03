@@ -12,23 +12,32 @@ class Player:
         pass
 
     async def get_player(
-        self, player_id: int, player_name: str, greater_than: bool, limit: int = 1_000
+        self,
+        player_id: int,
+        player_name: str,
+        label_id: int,
+        greater_than: bool,
+        limit: int = 1_000,
     ):
         table = dbPlayer
-        sql_select: Select = select(table)
-        sql_select = sql_select.limit(limit)
+        sql: Select = select(table)
+        sql = sql.limit(limit)
 
         if player_name:
-            sql_select = sql_select.where(dbPlayer.name >= player_name)
+            sql = sql.where(dbPlayer.name >= player_name)
 
-        if greater_than:
-            sql_select = sql_select.where(dbPlayer.id >= player_id)
-        elif player_id:
-            sql_select = sql_select.where(dbPlayer.id == player_id)
+        if label_id:
+            sql = sql.where(dbPlayer.label_id >= label_id)
+
+        comparison = (
+            (dbPlayer.id >= player_id) if greater_than else (dbPlayer.id == player_id)
+        )
+        sql = sql.where(comparison)
+        sql = sql.order_by(dbPlayer.id.asc())
 
         async with SessionFactory() as session:
             session: AsyncSession
 
-            result: AsyncResult = await session.execute(sql_select)
+            result: AsyncResult = await session.execute(sql)
             result = result.scalars().all()
         return jsonable_encoder(result)

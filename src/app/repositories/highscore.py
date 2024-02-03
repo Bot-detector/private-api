@@ -34,11 +34,22 @@ class HighscoreLatest(AbstractAPI):
         data = [{"name": d.pop("name"), **d["PlayerHiscoreDataLatest"]} for d in data]
         return data
 
-    async def get_many(self, start: int, limit: int = 5000):
+    async def get_many(
+        self,
+        start: int,
+        label_id: int = None,
+        limit: int = 5000,
+    ):
         sql: Select = select(self.table, Player.name)
         sql = sql.join(target=Player, onclause=self.table.Player_id == Player.id)
         sql = sql.where(self.table.Player_id > start)
+
+        if label_id:
+            sql = sql.where(Player.label_id == label_id)
+
         sql = sql.limit(limit)
+        sql = sql.order_by(self.table.Player_id.asc())
+
         data: list[dict] = await self._simple_execute(sql)
         # data = [{"PlayerHiscoreDataLatest":{"total": int, ...}, "name": str}]
         data = [{"name": d.pop("name"), **d["PlayerHiscoreDataLatest"]} for d in data]

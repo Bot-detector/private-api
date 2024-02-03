@@ -8,6 +8,7 @@ router = APIRouter()
 async def get_player(
     player_id: str = None,
     player_name: str = None,
+    label_id: int = None,
     greater_than: bool = None,
     limit: int = Query(default=1_000, ge=0, le=100_000),
 ):
@@ -18,6 +19,7 @@ async def get_player(
         player_id=player_id,
         player_name=player_name,
         greater_than=greater_than,
+        label_id=label_id,
         limit=limit,
     )
     return data
