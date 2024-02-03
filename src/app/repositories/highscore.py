@@ -31,9 +31,7 @@ class HighscoreLatest(AbstractAPI):
         sql = sql.join(target=Player, onclause=self.table.Player_id == Player.id)
         sql = sql.where(self.table.Player_id == id)
         data: list[dict] = await self._simple_execute(sql)
-        for d in data:
-            d["PlayerHiscoreDataLatest"]["name"] = d.pop("name")
-            d = d["PlayerHiscoreDataLatest"]
+        data = [{"name": d.pop("name"), **d["PlayerHiscoreDataLatest"]} for d in data]
         return data
 
     async def get_many(self, start: int, limit: int = 5000):
@@ -42,9 +40,8 @@ class HighscoreLatest(AbstractAPI):
         sql = sql.where(self.table.Player_id > start)
         sql = sql.limit(limit)
         data: list[dict] = await self._simple_execute(sql)
-        for d in data:
-            d["PlayerHiscoreDataLatest"]["name"] = d.pop("name")
-            d = d["PlayerHiscoreDataLatest"]
+        # data = [{"PlayerHiscoreDataLatest":{"total": int, ...}, "name": str}]
+        data = [{"name": d.pop("name"), **d["PlayerHiscoreDataLatest"]} for d in data]
         return data
 
     async def delete(self, id):
