@@ -23,7 +23,7 @@ class ScraperDataRepo(AbstractAPI):
         many: bool,
         limit: int,
         history: bool = False,
-    ):
+    ) -> list[dict]:
         table = (
             aliased(ScraperData, name="sd")
             if history

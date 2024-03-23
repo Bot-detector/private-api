@@ -1,7 +1,11 @@
+import logging
+
 from fastapi import APIRouter, Depends, Query
 
-from src.app.repositories.scraper_data import ScraperDataRepo
+from src.app.repositories import PlayerSkillsRepo, ScraperDataRepo
 from src.core.fastapi.dependencies.session import get_session
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -16,6 +20,8 @@ async def get_highscore_latest(
     session=Depends(get_session),
 ):
     repo = ScraperDataRepo(session=session)
+    repo_skills = PlayerSkillsRepo(session=session)
+
     data = await repo.select(
         player_name=player_name,
         player_id=player_id,
@@ -23,4 +29,11 @@ async def get_highscore_latest(
         many=many,
         limit=limit,
     )
+
+    for d in data:
+        skills = await repo_skills.select(scraper_id=d.get("scraper_id"))
+
+        d["skills"] = {
+            skill.get("skill_name"): skill.get("skill_value") for skill in skills
+        }
     return data
