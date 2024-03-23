@@ -1,62 +1,55 @@
-from src.core.database.models.highscore import (
-    # playerHiscoreData,
+import logging
+
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql.expression import Select
+
+from src.app.repositories.abstract_repo import AbstractAPI
+from src.core.database.models import (  # playerHiscoreData,; PlayerHiscoreDataXPChange,
     PlayerHiscoreDataLatest,
-    # PlayerHiscoreDataXPChange,
 )
 from src.core.database.models.player import Player
-from src.core.database.database import SessionFactory
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncResult
-from sqlalchemy.sql.expression import Select
-from fastapi.encoders import jsonable_encoder
-from src.app.repositories.abstract_repo import AbstractAPI
+
+logger = logging.getLogger(__name__)
 
 
-class HighscoreLatest(AbstractAPI):
-    def __init__(self) -> None:
+class HighscoreRepo(AbstractAPI):
+    def __init__(self, session) -> None:
         super().__init__()
-        self.table = PlayerHiscoreDataLatest
+        self.session: AsyncSession = session
 
-    async def _simple_execute(self, sql) -> dict:
-        async with SessionFactory() as session:
-            session: AsyncSession
+    def insert(self):
+        raise NotImplementedError
 
-            result: AsyncResult = await session.execute(sql)
-            result = result.all()
-        return jsonable_encoder(result)
+    async def select(
+        self, player_id: int, label_id: int, limit: int, many: bool
+    ) -> dict:
+        table = aliased(PlayerHiscoreDataLatest, name="phd")
+        player = aliased(Player, name="pl")
 
-    async def get(self, id: int):
-        sql: Select = select(self.table, Player.name)
-        sql = sql.join(target=Player, onclause=self.table.Player_id == Player.id)
-        sql = sql.where(self.table.Player_id == id)
-        data: list[dict] = await self._simple_execute(sql)
-        data = [{"name": d.pop("name"), **d["PlayerHiscoreDataLatest"]} for d in data]
-        return data
+        sql = Select(player.name, table)
+        sql = sql.join(target=player, onclause=table.Player_id == player.id)
 
-    async def get_many(
-        self,
-        start: int,
-        label_id: int = None,
-        limit: int = 5000,
-    ):
-        sql: Select = select(self.table, Player.name)
-        sql = sql.join(target=Player, onclause=self.table.Player_id == Player.id)
-        sql = sql.where(self.table.Player_id > start)
+        if player_id:
+            if many:
+                sql = sql.where(table.Player_id >= player_id)
+            else:
+                sql = sql.where(table.Player_id == player_id)
 
         if label_id:
-            sql = sql.where(Player.label_id == label_id)
+            sql = sql.where(player.label_id == label_id)
 
         sql = sql.limit(limit)
-        sql = sql.order_by(self.table.Player_id.asc())
 
-        data: list[dict] = await self._simple_execute(sql)
-        # data = [{"PlayerHiscoreDataLatest":{"total": int, ...}, "name": str}]
-        data = [{"name": d.pop("name"), **d["PlayerHiscoreDataLatest"]} for d in data]
+        async with self.session:
+            result: AsyncResult = await self.session.execute(sql)
+            result = result.fetchall()
+        data = [{"name": name, **jsonable_encoder(hs)} for name, hs in result]
         return data
 
-    async def delete(self, id):
-        pass
+    async def update(self):
+        raise NotImplementedError
 
-    async def update(self, id, data):
-        pass
+    async def delete(self):
+        raise NotImplementedError

@@ -58,17 +58,26 @@ pre-commit: ## Run pre-commit
 test-setup:
 	python3 -m pip install pytest
 
+create-venv:
+	python3 -m venv .venv
+	source .venv/bin/activate
+
 requirements:
 	python3 -m pip install -r requirements.txt
+	python3 -m pip install pytest-asyncio==0.23.6
+	python3 -m pip install httpx==0.27.0
+	python3 -m pip install pre-commit==3.6.2
+	python3 -m pip install ruff==0.1.15
+	pre-commit install
 
-docker-down:
-	docker-compose down
+docker-restart:
+	docker compose down
+	docker compose up --build -d
 
-docker-rebuild: docker-down
-	docker-compose --verbose up --build
-
-docker-force-rebuild:
-	docker-compose --verbose up --build --force-recreate
+docker test:
+	docker compose down
+	docker compose up --build -d
+	pytest
 
 api-setup:
 	python3 -m pip install "fastapi[all]"
@@ -76,7 +85,7 @@ api-setup:
 env-setup:
 	touch .env
 	echo "KAFKA_HOST= 'localhost:9092'" >> .env
-	echo "DATABASE_URL= 'mysql+aiomysql://root:root_bot_buster@localhost:3306/playerdata'"  >> .env
+	echo "DATABASE_URL= 'mysql+aiomysql://root:root_bot_buster@localhost:3307/playerdata'"  >> .env
 	echo "ENV='DEV'" >> .env
 	echo "POOL_RECYCLE='60'" >> .env
 	echo "POOL_TIMEOUT='30'" >> .env
