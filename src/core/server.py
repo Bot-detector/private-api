@@ -7,8 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from src import api
 from src.core.fastapi.middleware.logging import LoggingMiddleware
 
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -30,7 +28,7 @@ def make_middleware() -> list[Middleware]:
             allow_methods=["*"],
             allow_headers=["*"],
         ),
-        Middleware(LoggingMiddleware)
+        Middleware(LoggingMiddleware),
     ]
     return middleware
 
@@ -51,13 +49,3 @@ app = create_app()
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
-
-@app.on_event("startup")
-async def startup_event():
-    pass
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    pass

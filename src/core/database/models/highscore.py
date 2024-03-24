@@ -9,11 +9,8 @@ from sqlalchemy import (
     text,
 )
 
-from sqlalchemy.ext.declarative import declarative_base
+from src.core.database.database import Base
 
-
-Base = declarative_base()
-metadata = Base.metadata
 
 class playerHiscoreData(Base):
     __tablename__ = "playerHiscoreData"
@@ -240,6 +237,8 @@ class PlayerHiscoreDataLatest(Base):
     the_leviathan = Column(Integer, default=0)
     the_whisperer = Column(Integer, default=0)
     vardorvis = Column(Integer, default=0)
+
+
 class PlayerHiscoreDataXPChange(Base):
     __tablename__ = "playerHiscoreDataXPChange"
 

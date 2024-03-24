@@ -1,17 +1,15 @@
-from src.core.database.models.player import Player as dbPlayer
-from src.core.database.database import SessionFactory
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncResult
-from sqlalchemy.sql.expression import Select
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession
+from sqlalchemy.sql.expression import Select
+
+from src.core.database.models.player import Player
 
 
-class Player:
-    def __init__(self) -> None:
-        pass
+class PlayerRepo:
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
 
-    async def get_player(
+    async def select(
         self,
         player_id: int,
         player_name: str,
@@ -19,25 +17,25 @@ class Player:
         greater_than: bool,
         limit: int = 1_000,
     ):
-        table = dbPlayer
-        sql: Select = select(table)
-        sql = sql.limit(limit)
+        table = Player
+        sql = Select(table)
 
         if player_name:
-            sql = sql.where(dbPlayer.name >= player_name)
+            sql = sql.where(table.name == player_name)
 
         if label_id:
-            sql = sql.where(dbPlayer.label_id == label_id)
+            sql = sql.where(table.label_id == label_id)
 
-        comparison = (
-            (dbPlayer.id >= player_id) if greater_than else (dbPlayer.id == player_id)
-        )
-        sql = sql.where(comparison)
-        sql = sql.order_by(dbPlayer.id.asc())
+        if player_id:
+            if greater_than:
+                sql = sql.where(table.id >= player_id)
+            else:
+                sql = sql.where(table.id == player_id)
 
-        async with SessionFactory() as session:
-            session: AsyncSession
+        sql = sql.order_by(table.id.asc())
+        sql = sql.limit(limit)
 
-            result: AsyncResult = await session.execute(sql)
+        async with self.session:
+            result: AsyncResult = await self.session.execute(sql)
             result = result.scalars().all()
         return jsonable_encoder(result)

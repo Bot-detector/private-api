@@ -1,18 +1,19 @@
 from abc import ABC, abstractmethod
 
+
 class AbstractAPI(ABC):
     @abstractmethod
-    def get(self, id):
+    def insert(self):
         raise NotImplementedError
 
     @abstractmethod
-    def get_many(self, start, limit):
+    def select(self):
         raise NotImplementedError
 
     @abstractmethod
-    def update(self, id, data):
+    def update(self):
         raise NotImplementedError
 
     @abstractmethod
-    def delete(self, id):
+    def delete(self):
         raise NotImplementedError

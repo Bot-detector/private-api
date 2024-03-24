@@ -2,7 +2,6 @@ import json
 import logging
 import sys
 
-
 # # log formatting
 formatter = logging.Formatter(
     json.dumps(
@@ -25,10 +24,10 @@ handlers = [stream_handler]
 logging.basicConfig(level=logging.DEBUG, handlers=handlers)
 
 # set imported loggers to warning
-logging.getLogger("urllib3").setLevel(logging.DEBUG)
-logging.getLogger("uvicorn").setLevel(logging.DEBUG)
-logging.getLogger("aiomysql").setLevel(logging.ERROR)
-logging.getLogger("aiokafka").setLevel(logging.WARNING)
+# logging.getLogger("urllib3").setLevel(logging.DEBUG)
+# logging.getLogger("uvicorn").setLevel(logging.DEBUG)
+# logging.getLogger("aiomysql").setLevel(logging.ERROR)
+# logging.getLogger("aiokafka").setLevel(logging.WARNING)
 
 # if settings.ENV == "PRD":
 #     uvicorn_error = logging.getLogger("uvicorn.error")

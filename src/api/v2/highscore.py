@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Query
-from src.app.repositories.highscore import HighscoreLatest
+from fastapi import APIRouter, Depends, Query
+
+from src.app.repositories.highscore import HighscoreRepo
+from src.core.fastapi.dependencies.session import get_session
 
 router = APIRouter()
 
@@ -10,28 +12,10 @@ async def get_highscore_latest(
     label_id: int = None,
     many: bool = False,
     limit: int = Query(default=10, ge=0, le=10_000),
+    session=Depends(get_session),
 ):
-    repo = HighscoreLatest()
-    if many:
-        data = await repo.get_many(start=player_id, limit=limit, label_id=label_id)
-    else:
-        data = await repo.get(id=player_id)
+    repo = HighscoreRepo(session=session)
+    data = await repo.select(
+        player_id=player_id, label_id=label_id, many=many, limit=limit
+    )
     return data
-
-
-# @router.get("/highscore")
-# async def get_highscore(
-#     player_id: str = None,
-#     greater_than: bool = None,
-#     limit: int = Query(default=1_000, ge=0, le=10_000),
-# ):
-#     return {}
-
-
-# @router.get("/highscore/xp")
-# async def get_highscore_xp(
-#     player_id: str = None,
-#     greater_than: bool = None,
-#     limit: int = Query(default=1_000, ge=0, le=10_000),
-# ):
-#     return {}
