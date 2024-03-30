@@ -29,6 +29,7 @@ async def get_highscore_latest(
         label_id=label_id,
         many=many,
         limit=limit,
+        history=False,
     )
 
     for d in data:
