@@ -10,6 +10,7 @@ from src.core.fastapi.dependencies.session import get_session
 
 logger = logging.getLogger(__name__)
 
+
 router = APIRouter()
 
 
@@ -69,3 +70,4 @@ async def get_highscore_latest_v2(
 
     data = [{k: v for k, v in d.items() if v} for d in data]
     return [PlayerHiscoreData(**d).model_dump(mode="json") for d in data]
+
