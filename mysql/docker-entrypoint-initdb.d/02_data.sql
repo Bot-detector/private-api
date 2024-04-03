@@ -99,8 +99,7 @@ SELECT
 FROM (
         SELECT (a.N + b.N * 10 + 100) AS id
         FROM (
-                SELECT 0 AS N
-                UNION
+                SELECT 0 AS N UNION
                 SELECT 1
                 UNION
                 SELECT 2

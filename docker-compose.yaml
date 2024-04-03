@@ -14,6 +14,22 @@ services:
       - 3307:3306
     networks:
       - botdetector-network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  mysql_setup:
+    container_name: mysql_setup
+    image: bot-detector/mysql_setup
+    build:
+      context: ./mysql_setup
+    command: ["python", "setup_mysql.py"]
+    networks:
+      - botdetector-network
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   private_api:
     container_name: private_api
@@ -43,6 +59,7 @@ services:
       - ./src:/project/src
     depends_on:
       - mysql
+      - mysql_setup
 
 networks:
   botdetector-network:
