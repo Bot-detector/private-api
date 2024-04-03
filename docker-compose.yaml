@@ -24,7 +24,7 @@ services:
     image: bot-detector/mysql_setup
     build:
       context: ./mysql_setup
-    command: ["python", "setup_mysql.py"]
+    command: ["python", "-u","setup_mysql.py"]
     networks:
       - botdetector-network
     depends_on:

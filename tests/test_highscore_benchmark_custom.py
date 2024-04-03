@@ -1,5 +1,3 @@
-import asyncio
-
 import pytest
 from benchmark import Benchmark
 from httpx import AsyncClient
@@ -16,7 +14,7 @@ async def test_highscore_custom_benchmark_v2(custom_client):
         client: AsyncClient
 
         async def request(player_id):
-            params = {"player_id": player_id}
+            params = {"player_id": player_id, "many": 1, "limit": 100}
             response = await client.get(url=endpoint, params=params)
             return response
 
@@ -40,7 +38,7 @@ async def test_highscore_custom_benchmark_v3(custom_client):
         client: AsyncClient
 
         async def request(player_id):
-            params = {"player_id": player_id}
+            params = {"player_id": player_id, "many": 1, "limit": 100}
             response = await client.get(url=endpoint, params=params)
             return response
 

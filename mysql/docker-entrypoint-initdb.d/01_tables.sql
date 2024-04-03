@@ -413,6 +413,8 @@ CREATE TABLE `scraper_data_latest` (
   KEY `idx_record_date` (`record_date`)
 );
 
+
+
 CREATE TABLE skills (
   skill_id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, # < 255
   skill_name VARCHAR(50) NOT NULL,
@@ -442,3 +444,32 @@ CREATE TABLE player_activities (
   FOREIGN KEY (activity_id) REFERENCES activities(activity_id) ON DELETE CASCADE,
   PRIMARY KEY (scraper_id, activity_id)
 );
+
+
+DELIMITER //
+
+CREATE TRIGGER `sd_latest` AFTER INSERT ON `scraper_data` FOR EACH ROW
+BEGIN
+    DECLARE latest_created_at DATETIME;
+
+    -- Get the latest created_at from scraper_data_latest for the current player_id
+    SELECT created_at INTO latest_created_at
+    FROM scraper_data_latest
+    WHERE player_id = NEW.player_id;
+
+    IF latest_created_at IS NULL THEN
+        INSERT INTO scraper_data_latest (scraper_id, created_at, player_id)
+        VALUES (NEW.scraper_id, NEW.created_at, NEW.player_id)
+        ON DUPLICATE KEY UPDATE
+            scraper_id = NEW.scraper_id,
+            created_at = NEW.created_at;
+    ELSEIF NEW.created_at > latest_created_at THEN
+        UPDATE scraper_data_latest
+        SET
+            scraper_id = NEW.scraper_id,
+            created_at = NEW.created_at
+        WHERE player_id = NEW.player_id;
+    END IF;
+END //
+
+DELIMITER ;
