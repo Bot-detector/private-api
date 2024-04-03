@@ -57,6 +57,13 @@ pre-commit: ## Run pre-commit
 
 test-setup:
 	python3 -m pip install pytest
+	python3 -m pip install pytest-benchmark
+
+list-benchmarks:
+	pytest-benchmark list
+
+benchmark:
+	pytest tests/test_highscore_benchmark.py --benchmark-min-rounds=1000
 
 create-venv:
 	python3 -m venv .venv
