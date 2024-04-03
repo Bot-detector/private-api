@@ -2,6 +2,7 @@ import asyncio
 
 import httpx
 import pytest
+from benchmark import Benchmark
 
 
 @pytest.mark.asyncio
