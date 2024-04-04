@@ -10,7 +10,7 @@ benchmark_results = {"v2": [], "v3": []}
 async def test_highscore_custom_benchmark_v2(custom_client):
     # Clear the results from the previous tests
     Benchmark.results.clear()
-    player_ids = list(range(1, 11))  # Or any other player IDs you want to use
+    player_ids = list(range(1, 101))  # Or any other player IDs you want to use
     endpoint = "/v2/highscore/latest"
     async with custom_client as client:
         client: AsyncClient
@@ -22,9 +22,9 @@ async def test_highscore_custom_benchmark_v2(custom_client):
 
         for player_id in player_ids:
             async with Benchmark(
-                f"request({player_id})", iterations=10, suppress_logging=True
+                f"request({player_id})", iterations=1, suppress_logging=True
             ) as b:
-                for _ in range(10):
+                for _ in range(1):
                     await request(player_id)
             benchmark_results["v2"].append((b.name, b.duration))
 
@@ -36,7 +36,7 @@ async def test_highscore_custom_benchmark_v2(custom_client):
 async def test_highscore_custom_benchmark_v3(custom_client):
     # Clear the results from the previous tests
     Benchmark.results.clear()
-    player_ids = list(range(1, 11))  # Or any other player IDs you want to use
+    player_ids = list(range(1, 101))  # Or any other player IDs you want to use
     endpoint = "/v2/highscore/latest"
     async with custom_client as client:
         client: AsyncClient
@@ -48,9 +48,9 @@ async def test_highscore_custom_benchmark_v3(custom_client):
 
         for player_id in player_ids:
             async with Benchmark(
-                f"request({player_id})", iterations=10, suppress_logging=True
+                f"request({player_id})", iterations=1, suppress_logging=True
             ) as b:
-                for _ in range(10):
+                for _ in range(1):
                     await request(player_id)
             benchmark_results["v2"].append((b.name, b.duration))
 
