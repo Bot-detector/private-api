@@ -8,6 +8,22 @@ from httpx import AsyncClient
 # Global variable to store the results
 benchmark_results = {"v2": [], "v3": []}
 player_ids = [random.randint(1, 250) for i in range(10)]
+ITERATIONS = 1
+
+
+async def request(client: AsyncClient, endpoint: str, player_id: int):
+    params = {"player_id": player_id, "many": 1, "limit": 5000}
+    response = await client.get(url=endpoint, params=params)
+    return response
+
+
+async def bench(iterations, client, endpoint, player_ids):
+    async with Benchmark("requests", iterations=10, suppress_logging=True) as b:
+        for _ in range(iterations):
+            await asyncio.gather(
+                *(request(client, endpoint, player_id) for player_id in player_ids)
+            )
+    return b
 
 
 @pytest.mark.asyncio
@@ -18,13 +34,7 @@ async def test_highscore_custom_benchmark_v2(custom_client):
     async with custom_client as client:
         client: AsyncClient
 
-        async def request(player_id):
-            params = {"player_id": player_id, "many": 1, "limit": 5000}
-            response = await client.get(url=endpoint, params=params)
-            return response
-
-        async with Benchmark("requests", iterations=1, suppress_logging=True) as b:
-            await asyncio.gather(*(request(player_id) for player_id in player_ids))
+        b = await bench(ITERATIONS, client, endpoint, player_ids)
         benchmark_results["v2"].append((b.name, b.duration))
 
     total_time = Benchmark.output_results()
@@ -39,13 +49,7 @@ async def test_highscore_custom_benchmark_v3(custom_client):
     async with custom_client as client:
         client: AsyncClient
 
-        async def request(player_id):
-            params = {"player_id": player_id, "many": 1, "limit": 5000}
-            response = await client.get(url=endpoint, params=params)
-            return response
-
-        async with Benchmark("requests", iterations=1, suppress_logging=True) as b:
-            await asyncio.gather(*(request(player_id) for player_id in player_ids))
+        b = await bench(ITERATIONS, client, endpoint, player_ids)
         benchmark_results["v3"].append((b.name, b.duration))
 
     total_time = Benchmark.output_results()
