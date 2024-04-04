@@ -37,7 +37,7 @@ async def test_one_player_name(custom_client):
         assert len(json_response) == 1
         assert isinstance(json_response[0], dict)
         player = json_response[0]
-        assert player.get("id") == 9
+        assert player.get("name") == "Player_0"
 
 
 @pytest.mark.asyncio

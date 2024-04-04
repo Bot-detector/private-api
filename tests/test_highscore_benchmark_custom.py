@@ -1,22 +1,24 @@
+import random
+
 import pytest
 from benchmark import Benchmark
 from httpx import AsyncClient
 
 # Global variable to store the results
 benchmark_results = {"v2": [], "v3": []}
+player_ids = [random.randint(1, 250) for i in range(10)]
 
 
 @pytest.mark.asyncio
 async def test_highscore_custom_benchmark_v2(custom_client):
     # Clear the results from the previous tests
     Benchmark.results.clear()
-    player_ids = list(range(1, 101))  # Or any other player IDs you want to use
     endpoint = "/v2/highscore/latest"
     async with custom_client as client:
         client: AsyncClient
 
         async def request(player_id):
-            params = {"player_id": player_id, "many": 1, "limit": 100}
+            params = {"player_id": player_id, "many": 1, "limit": 5000}
             response = await client.get(url=endpoint, params=params)
             return response
 
@@ -36,13 +38,12 @@ async def test_highscore_custom_benchmark_v2(custom_client):
 async def test_highscore_custom_benchmark_v3(custom_client):
     # Clear the results from the previous tests
     Benchmark.results.clear()
-    player_ids = list(range(1, 101))  # Or any other player IDs you want to use
     endpoint = "/v2/highscore/latest"
     async with custom_client as client:
         client: AsyncClient
 
         async def request(player_id):
-            params = {"player_id": player_id, "many": 1, "limit": 100}
+            params = {"player_id": player_id, "many": 1, "limit": 5000}
             response = await client.get(url=endpoint, params=params)
             return response
 
