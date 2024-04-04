@@ -53,7 +53,7 @@ async def test_highscore_custom_benchmark_v3(custom_client):
             ) as b:
                 for _ in range(1):
                     await request(player_id)
-            benchmark_results["v2"].append((b.name, b.duration))
+            benchmark_results["v3"].append((b.name, b.duration))
 
     total_time = Benchmark.output_results()
     benchmark_results["v3"].append(("total", total_time))
