@@ -27,7 +27,7 @@ async def test_one_player_name(custom_client):
 
     async with custom_client as client:
         client: AsyncClient
-        params = {"player_name": "player1", "greater_than": 0}
+        params = {"player_name": "Player_0", "greater_than": 0}
         response = await client.get(url=endpoint, params=params)
 
         assert response.status_code == 200

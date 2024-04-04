@@ -3,6 +3,7 @@ import logging
 from fastapi import APIRouter, Depends, Query
 
 from src.app.repositories import PlayerActivityRepo, PlayerSkillsRepo, ScraperDataRepo
+from src.app.views.response import ActivityView, ScraperDataView, SkillView
 from src.core.fastapi.dependencies.session import get_session
 
 logger = logging.getLogger(__name__)
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/highscore/latest")
+@router.get("/highscore/latest", response_model=list[ScraperDataView])
 async def get_highscore_latest(
     player_id: int,
     player_name: str = None,
@@ -32,15 +33,22 @@ async def get_highscore_latest(
         history=False,
     )
 
+    results = []
     for d in data:
         skills = await repo_skills.select(scraper_id=d.get("scraper_id"))
+        skills = [SkillView(**s) for s in skills]
 
-        d["skills"] = {
-            skill.get("skill_name"): skill.get("skill_value") for skill in skills
-        }
         activities = await repo_activities.select(scraper_id=d.get("scraper_id"))
-        d["activity"] = {
-            activity.get("activity_name"): activity.get("activity_value")
-            for activity in activities
-        }
-    return data
+        activities = [ActivityView(**a) for a in activities]
+
+        results.append(
+            ScraperDataView(
+                created_at=d.get("created_at"),
+                record_date=d.get("record_date"),
+                scraper_id=d.get("scraper_id"),
+                player_id=d.get("player_id"),
+                skills=skills,
+                activities=activities,
+            )
+        )
+    return results
