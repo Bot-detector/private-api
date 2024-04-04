@@ -1,3 +1,4 @@
+import asyncio
 import random
 
 import pytest
@@ -22,13 +23,9 @@ async def test_highscore_custom_benchmark_v2(custom_client):
             response = await client.get(url=endpoint, params=params)
             return response
 
-        for player_id in player_ids:
-            async with Benchmark(
-                f"request({player_id})", iterations=1, suppress_logging=True
-            ) as b:
-                for _ in range(1):
-                    await request(player_id)
-            benchmark_results["v2"].append((b.name, b.duration))
+        async with Benchmark("requests", iterations=1, suppress_logging=True) as b:
+            await asyncio.gather(*(request(player_id) for player_id in player_ids))
+        benchmark_results["v2"].append((b.name, b.duration))
 
     total_time = Benchmark.output_results()
     benchmark_results["v2"].append(("total", total_time))
@@ -47,13 +44,9 @@ async def test_highscore_custom_benchmark_v3(custom_client):
             response = await client.get(url=endpoint, params=params)
             return response
 
-        for player_id in player_ids:
-            async with Benchmark(
-                f"request({player_id})", iterations=1, suppress_logging=True
-            ) as b:
-                for _ in range(1):
-                    await request(player_id)
-            benchmark_results["v3"].append((b.name, b.duration))
+        async with Benchmark("requests", iterations=1, suppress_logging=True) as b:
+            await asyncio.gather(*(request(player_id) for player_id in player_ids))
+        benchmark_results["v3"].append((b.name, b.duration))
 
     total_time = Benchmark.output_results()
     benchmark_results["v3"].append(("total", total_time))
