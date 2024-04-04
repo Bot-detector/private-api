@@ -38,7 +38,7 @@ async def test_highscore_custom_benchmark_v2(custom_client):
 async def test_highscore_custom_benchmark_v3(custom_client):
     # Clear the results from the previous tests
     Benchmark.results.clear()
-    endpoint = "/v2/highscore/latest"
+    endpoint = "/v3/highscore/latest"
     async with custom_client as client:
         client: AsyncClient
 
