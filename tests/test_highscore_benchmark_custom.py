@@ -8,7 +8,7 @@ from httpx import AsyncClient
 # Global variable to store the results
 benchmark_results = {"v2": [], "v3": []}
 player_ids = [random.randint(1, 250) for i in range(10)]
-ITERATIONS = 2
+ITERATIONS = 1
 
 
 async def request(client: AsyncClient, endpoint: str, player_id: int):
@@ -32,10 +32,9 @@ async def test_highscore_custom_benchmark_v2(custom_client):
     endpoint = "/v2/highscore/latest"
     async with custom_client as client:
         client: AsyncClient
-
         b = await bench(ITERATIONS, client, endpoint, player_ids)
-
-    benchmark_results["v2"].extend(duration for name, duration in b.results)
+    for name, duration in b.results:
+        benchmark_results["v2"].append(duration)
 
 
 @pytest.mark.asyncio
@@ -45,10 +44,9 @@ async def test_highscore_custom_benchmark_v3(custom_client):
     endpoint = "/v3/highscore/latest"
     async with custom_client as client:
         client: AsyncClient
-
         b = await bench(ITERATIONS, client, endpoint, player_ids)
-
-    benchmark_results["v3"].extend(duration for name, duration in b.results)
+    for name, duration in b.results:
+        benchmark_results["v3"].append(duration)
 
 
 def test_output_results():
@@ -58,10 +56,12 @@ def test_output_results():
     stdev_time = (
         statistics.stdev(benchmark_results["v2"])
         if len(benchmark_results["v2"]) > 1
-        else 0
+        else 0  # if length of results empty return 0
     )
+    max_time = max(benchmark_results["v2"])
+    min_time = min(benchmark_results["v2"])
     print(
-        f"average {avg_time:.3f} seconds, median {median_time:.3f} seconds, stdev {stdev_time:.3f} seconds"
+        f"average {avg_time:.3f} seconds, median {median_time:.3f} seconds, stdev {stdev_time:.3f} seconds, max {max_time:.3f} seconds, min {min_time:.3f} seconds"
     )
     assert avg_time > 0
 
@@ -73,7 +73,9 @@ def test_output_results():
         if len(benchmark_results["v3"]) > 1
         else 0
     )
+    max_time = max(benchmark_results["v3"])
+    min_time = min(benchmark_results["v3"])
     print(
-        f"average {avg_time:.3f} seconds, median {median_time:.3f} seconds, stdev {stdev_time:.3f} seconds"
+        f"average {avg_time:.3f} seconds, median {median_time:.3f} seconds, stdev {stdev_time:.3f} seconds, max {max_time:.3f} seconds, min {min_time:.3f} seconds"
     )
     assert avg_time > 0
