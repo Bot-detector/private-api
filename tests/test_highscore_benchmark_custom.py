@@ -1,5 +1,5 @@
-import asyncio
 import random
+import statistics
 
 import pytest
 from benchmark import Benchmark
@@ -8,7 +8,7 @@ from httpx import AsyncClient
 # Global variable to store the results
 benchmark_results = {"v2": [], "v3": []}
 player_ids = [random.randint(1, 250) for i in range(10)]
-ITERATIONS = 1
+ITERATIONS = 2
 
 
 async def request(client: AsyncClient, endpoint: str, player_id: int):
@@ -18,11 +18,10 @@ async def request(client: AsyncClient, endpoint: str, player_id: int):
 
 
 async def bench(iterations, client, endpoint, player_ids):
-    async with Benchmark("requests", iterations=10, suppress_logging=True) as b:
-        for _ in range(iterations):
-            await asyncio.gather(
-                *(request(client, endpoint, player_id) for player_id in player_ids)
-            )
+    for _ in range(iterations):
+        for player_id in player_ids:
+            async with Benchmark("requests", suppress_logging=True) as b:
+                await request(client, endpoint, player_id)
     return b
 
 
@@ -35,10 +34,8 @@ async def test_highscore_custom_benchmark_v2(custom_client):
         client: AsyncClient
 
         b = await bench(ITERATIONS, client, endpoint, player_ids)
-        benchmark_results["v2"].append((b.name, b.duration))
 
-    total_time = Benchmark.output_results()
-    benchmark_results["v2"].append(("total", total_time))
+    benchmark_results["v2"].extend(duration for name, duration in b.results)
 
 
 @pytest.mark.asyncio
@@ -50,28 +47,33 @@ async def test_highscore_custom_benchmark_v3(custom_client):
         client: AsyncClient
 
         b = await bench(ITERATIONS, client, endpoint, player_ids)
-        benchmark_results["v3"].append((b.name, b.duration))
 
-    total_time = Benchmark.output_results()
-    benchmark_results["v3"].append(("total", total_time))
+    benchmark_results["v3"].extend(duration for name, duration in b.results)
 
 
 def test_output_results():
     print("v2 results:")
-    total_time_v2 = 0
-    for name, duration in benchmark_results["v2"]:
-        print(f"{name} took {duration:.3f} seconds")
-        assert duration > 0
-        if name == "total":
-            total_time_v2 = duration
+    avg_time = statistics.mean(benchmark_results["v2"])
+    median_time = statistics.median(benchmark_results["v2"])
+    stdev_time = (
+        statistics.stdev(benchmark_results["v2"])
+        if len(benchmark_results["v2"]) > 1
+        else 0
+    )
+    print(
+        f"average {avg_time:.3f} seconds, median {median_time:.3f} seconds, stdev {stdev_time:.3f} seconds"
+    )
+    assert avg_time > 0
 
     print("v3 results:")
-    total_time_v3 = 0
-    for name, duration in benchmark_results["v3"]:
-        print(f"{name} took {duration:.3f} seconds")
-        assert duration > 0
-        if name == "total":
-            total_time_v3 = duration
-
-    print(f"Total time for v2: {total_time_v2:.3f} seconds")
-    print(f"Total time for v3: {total_time_v3:.3f} seconds")
+    avg_time = statistics.mean(benchmark_results["v3"])
+    median_time = statistics.median(benchmark_results["v3"])
+    stdev_time = (
+        statistics.stdev(benchmark_results["v3"])
+        if len(benchmark_results["v3"]) > 1
+        else 0
+    )
+    print(
+        f"average {avg_time:.3f} seconds, median {median_time:.3f} seconds, stdev {stdev_time:.3f} seconds"
+    )
+    assert avg_time > 0
