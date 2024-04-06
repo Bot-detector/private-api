@@ -46,9 +46,7 @@ class ScraperData(Base):
     scraper_id = Column(BIGINT, primary_key=True, autoincrement=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     player_id = Column(SMALLINT, nullable=False)
-    record_date = Column(
-        Date, nullable=True, generated_always=True, server_default=func.current_date()
-    )
+    record_date = Column(Date, nullable=True, server_default=func.current_date())
 
 
 class ScraperDataLatest(Base):
@@ -57,9 +55,7 @@ class ScraperDataLatest(Base):
     scraper_id = Column(BIGINT)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     player_id = Column(BIGINT, primary_key=True)
-    record_date = Column(
-        Date, nullable=True, generated_always=True, server_default=func.current_date()
-    )
+    record_date = Column(Date, nullable=True, server_default=func.current_date())
 
 
 class Skills(Base):
@@ -124,29 +120,78 @@ def random_date():
     return datetime.utcnow() - timedelta(days=random.randint(0, 365))
 
 
+class Labels(Base):
+    __tablename__ = "labels"
+
+    id = Column(Integer, primary_key=True)
+    label = Column(String)
+
+
+# Insert 'request_highscores' and 'verify_ban' into the labels table
+labels_to_insert = ["request_highscores", "verify_ban"]
+for label_name in labels_to_insert:
+    # Check if the label already exists
+    existing_label = session.query(Labels).filter_by(label=label_name).first()
+    if not existing_label:
+        label = Labels(label=label_name)
+        session.add(label)
+session.commit()
+
+# Query the labels table to get all id values
+label_ids = session.query(Labels.id).all()
+label_ids = [id[0] for id in label_ids]  # Convert list of tuples to list of ids
+
 # Insert data into Players table
 len_players = 250
 for i in range(250):
     print(f"Player_{i}")
-    player = Players(
-        name=f"Player_{i}",
-        created_at=random_date(),
-        updated_at=random_date(),
-        possible_ban=random.choice([True, False]),
-        confirmed_ban=random.choice([True, False]),
-        confirmed_player=random.choice([True, False]),
-        label_id=random.randint(0, 2),
-        label_jagex=random.randint(0, 2),
-        normalized_name=f"Player_{i}",
+    # Check if the player already exists
+    existing_player = session.query(Players).filter_by(name=f"Player_{i}").first()
+    if not existing_player:
+        player = Players(
+            name=f"Player_{i}",
+            created_at=random_date(),
+            updated_at=random_date(),
+            possible_ban=random.choice([True, False]),
+            confirmed_ban=random.choice([True, False]),
+            confirmed_player=random.choice([True, False]),
+            label_id=random.choice(label_ids),  # Select a random id from label_ids
+            label_jagex=random.randint(0, 2),
+            normalized_name=f"Player_{i}",
+        )
+        session.add(player)
+session.commit()
+
+# Insert data into Activities table before PlayerActivities
+activity_names = [f"Activity_{i}" for i in range(1, 71)]
+for activity_name in activity_names:
+    # Check if the activity already exists
+    existing_activity = (
+        session.query(Activities).filter_by(activity_name=activity_name).first()
     )
-    session.add(player)
-    session.commit()
+    if not existing_activity:
+        activity = Activities(activity_name=activity_name)
+        session.add(activity)
+session.commit()
 
 skill_list = list(range(2, 24))
 activity_list = list(range(1, 71))
 
 len_scraper_data = len_players * 3
 
+# Insert data into Skills table before PlayerSkills
+skill_names = [f"Skill_{i}" for i in range(1, 24)]
+for skill_name in skill_names:
+    # Check if the skill already exists
+    existing_skill = session.query(Skills).filter_by(skill_name=skill_name).first()
+    if not existing_skill:
+        skill = Skills(skill_name=skill_name)
+        session.add(skill)
+session.commit()
+
+# Query the skills table to get all id values
+skill_ids = session.query(Skills.skill_id).all()
+skill_ids = [id[0] for id in skill_ids]  # Convert list of tuples to list of ids
 
 for i in range(1, len_scraper_data + 1):
     print(f"scraper_data_{i}")
@@ -154,9 +199,9 @@ for i in range(1, len_scraper_data + 1):
     player_id = random.randint(1, len_players)
 
     # pick random amount of skills
-    amount_skills = random.randint(0, len(skill_list))
-    random.shuffle(skill_list)
-    skills = skill_list[:amount_skills]
+    amount_skills = random.randint(0, len(skill_ids))
+    random.shuffle(skill_ids)
+    skills = skill_ids[:amount_skills]
 
     # pick random amount of activities
     amount_activities = random.randint(0, len(activity_list))
