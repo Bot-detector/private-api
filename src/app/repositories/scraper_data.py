@@ -1,82 +1,26 @@
-from fastapi.encoders import jsonable_encoder
-from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql.expression import Select
-
-from src.app.repositories.abstract_repo import AbstractAPI
-from src.core.database.models import Player, ScraperData, ScraperDataLatest
-
-
-class ScraperDataRepo(AbstractAPI):
-    def __init__(self, session: AsyncSession) -> None:
-        super().__init__()
-        self.session = session
-
-    async def insert(self, id):
-        raise NotImplementedError
-
-    async def select(
-        self,
-        player_name: str,
-        player_id: int,
-        label_id: int,
-        many: bool,
-        limit: int,
-        history: bool = False,
-    ) -> list[dict]:
-        table = (
-            aliased(ScraperData, name="sd")
-            if history
-            else aliased(ScraperDataLatest, name="sdl")
-        )
-        player = aliased(Player, name="pl")
-
-        sql = Select(player.name, table)
-        sql = sql.join(player, table.player_id == player.id)
-
-        if player_id:
-            if many:
-                sql = sql.where(table.player_id >= player_id)
-            else:
-                sql = sql.where(table.player_id == player_id)
-
-        if player_name:
-            sql = sql.where(player.name == player_name)
-
-        if label_id:
-            sql = sql.where(player.label_id == label_id)
-
-        sql = sql.order_by(table.player_id.asc())
-        # sql = sql.order_by(player.id.asc()) # not performant
-        sql = sql.limit(limit)
-
-        async with self.session:
-            result: AsyncResult = await self.session.execute(sql)
-            result = result.fetchall()
-        data = [{"name": name, **jsonable_encoder(r)} for name, r in result]
-        return data
-
-    async def select_history(self, player_name: str, player_id: int, many: bool):
-        table = ScraperData
-        sql = Select(table)
-
-        if player_id:
-            if many:
-                sql = sql.where(table.player_id >= player_id)
-            else:
-                sql = sql.where(table.player_id == player_id)
-
-        if player_name:
-            sql = sql.join(Player, table.player_id == Player.id)
-            sql = sql.where(Player.name == player_name)
-
-        async with self.session:
-            result: AsyncResult = await self.session.execute(sql)
-            result = result.scalars().all()
-        return jsonable_encoder(result)
-
-    async def update(self):
-        raise NotImplementedError
-
-    async def delete(self):
-        raise NotImplementedError
+async def select_scraper_data_v3(session, player_name: str):
+    sql = """
+        SELECT
+            sdv.scrape_id ,
+            sdv.scrape_ts ,
+            sdv.scrape_date,
+            sdv.player_id ,
+            p.name,
+            s.skill_id ,
+            s.skill_name ,
+            ps.skill_value
+        FROM  scraper_data_v3 sdv
+        JOIN Players p on sdv.player_id =p.id
+        LEFT JOIN scraper_player_skill sps on sdv.scrape_id = sps.scrape_id
+        LEFT JOIN player_skill ps on sps.player_skill_id =ps.player_skill_id
+        LEFT JOIN skill s on ps.skill_id =s.skill_id
+        WHERE 1
+            AND p.name = :player_name
+            AND sdv.scrape_date = (
+                SELECT
+                    MAX(scrape_date)
+                FROM scraper_data_v3
+                WHERE player_id=p.id
+                )
+        ;
+    """
