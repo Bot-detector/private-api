@@ -1,5 +1,13 @@
 USE playerdata;
 
+CREATE TABLE Labels (
+  id int NOT NULL AUTO_INCREMENT,
+  label varchar(50) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY Unique_label (label) USING BTREE
+)
+;
+
 CREATE TABLE Players (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name TEXT,
@@ -184,300 +192,63 @@ CREATE TABLE playerHiscoreData (
   CONSTRAINT FK_Players_id FOREIGN KEY (Player_id) REFERENCES Players (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
-CREATE TABLE playerHiscoreDataLatest (
-  id bigint NOT NULL AUTO_INCREMENT,
-  timestamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  ts_date date DEFAULT NULL,
-  Player_id int NOT NULL,
-  total bigint DEFAULT NULL,
-  attack int DEFAULT NULL,
-  defence int DEFAULT NULL,
-  strength int DEFAULT NULL,
-  hitpoints int DEFAULT NULL,
-  ranged int DEFAULT NULL,
-  prayer int DEFAULT NULL,
-  magic int DEFAULT NULL,
-  cooking int DEFAULT NULL,
-  woodcutting int DEFAULT NULL,
-  fletching int DEFAULT NULL,
-  fishing int DEFAULT NULL,
-  firemaking int DEFAULT NULL,
-  crafting int DEFAULT NULL,
-  smithing int DEFAULT NULL,
-  mining int DEFAULT NULL,
-  herblore int DEFAULT NULL,
-  agility int DEFAULT NULL,
-  thieving int DEFAULT NULL,
-  slayer int DEFAULT NULL,
-  farming int DEFAULT NULL,
-  runecraft int DEFAULT NULL,
-  hunter int DEFAULT NULL,
-  construction int DEFAULT NULL,
-  league int DEFAULT NULL,
-  bounty_hunter_hunter int DEFAULT NULL,
-  bounty_hunter_rogue int DEFAULT NULL,
-  cs_all int DEFAULT NULL,
-  cs_beginner int DEFAULT NULL,
-  cs_easy int DEFAULT NULL,
-  cs_medium int DEFAULT NULL,
-  cs_hard int DEFAULT NULL,
-  cs_elite int DEFAULT NULL,
-  cs_master int DEFAULT NULL,
-  lms_rank int DEFAULT NULL,
-  soul_wars_zeal int DEFAULT NULL,
-  abyssal_sire int DEFAULT NULL,
-  alchemical_hydra int DEFAULT NULL,
-  barrows_chests int DEFAULT NULL,
-  bryophyta int DEFAULT NULL,
-  callisto int DEFAULT NULL,
-  cerberus int DEFAULT NULL,
-  chambers_of_xeric int DEFAULT NULL,
-  chambers_of_xeric_challenge_mode int DEFAULT NULL,
-  chaos_elemental int DEFAULT NULL,
-  chaos_fanatic int DEFAULT NULL,
-  commander_zilyana int DEFAULT NULL,
-  corporeal_beast int DEFAULT NULL,
-  crazy_archaeologist int DEFAULT NULL,
-  dagannoth_prime int DEFAULT NULL,
-  dagannoth_rex int DEFAULT NULL,
-  dagannoth_supreme int DEFAULT NULL,
-  deranged_archaeologist int DEFAULT NULL,
-  general_graardor int DEFAULT NULL,
-  giant_mole int DEFAULT NULL,
-  grotesque_guardians int DEFAULT NULL,
-  hespori int DEFAULT NULL,
-  kalphite_queen int DEFAULT NULL,
-  king_black_dragon int DEFAULT NULL,
-  kraken int DEFAULT NULL,
-  kreearra int DEFAULT NULL,
-  kril_tsutsaroth int DEFAULT NULL,
-  mimic int DEFAULT NULL,
-  nex int DEFAULT NULL,
-  nightmare int DEFAULT NULL,
-  phosanis_nightmare int DEFAULT NULL,
-  obor int DEFAULT NULL,
-  phantom_muspah int DEFAULT NULL,
-  sarachnis int DEFAULT NULL,
-  scorpia int DEFAULT NULL,
-  skotizo int DEFAULT NULL,
-  Tempoross int DEFAULT NULL,
-  the_gauntlet int DEFAULT NULL,
-  the_corrupted_gauntlet int DEFAULT NULL,
-  theatre_of_blood int DEFAULT NULL,
-  theatre_of_blood_hard int DEFAULT NULL,
-  thermonuclear_smoke_devil int DEFAULT NULL,
-  tombs_of_amascut int DEFAULT NULL,
-  tombs_of_amascut_expert int DEFAULT NULL,
-  tzkal_zuk int DEFAULT NULL,
-  tztok_jad int DEFAULT NULL,
-  venenatis int DEFAULT NULL,
-  vetion int DEFAULT NULL,
-  vorkath int DEFAULT NULL,
-  wintertodt int DEFAULT NULL,
-  zalcano int DEFAULT NULL,
-  zulrah int DEFAULT NULL,
-  rifts_closed int DEFAULT '0',
-  artio int DEFAULT '0',
-  calvarion int DEFAULT '0',
-  duke_sucellus int DEFAULT '0',
-  spindel int DEFAULT '0',
-  the_leviathan int DEFAULT '0',
-  the_whisperer int DEFAULT '0',
-  vardorvis int DEFAULT '0',
-  PRIMARY KEY (id),
-  UNIQUE KEY Unique_player (Player_id) USING BTREE,
-  UNIQUE KEY idx_playerHiscoreDataLatest_Player_id_timestamp (Player_id,timestamp),
-  UNIQUE KEY idx_playerHiscoreDataLatest_Player_id_ts_date (Player_id,ts_date),
-  CONSTRAINT FK_latest_player FOREIGN KEY (Player_id) REFERENCES Players (id) ON DELETE RESTRICT ON UPDATE RESTRICT
-);
-CREATE TABLE playerHiscoreDataXPChange (
-  id bigint NOT NULL AUTO_INCREMENT,
-  timestamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  ts_date date DEFAULT NULL,
-  Player_id int NOT NULL,
-  total bigint DEFAULT NULL,
-  attack int DEFAULT NULL,
-  defence int DEFAULT NULL,
-  strength int DEFAULT NULL,
-  hitpoints int DEFAULT NULL,
-  ranged int DEFAULT NULL,
-  prayer int DEFAULT NULL,
-  magic int DEFAULT NULL,
-  cooking int DEFAULT NULL,
-  woodcutting int DEFAULT NULL,
-  fletching int DEFAULT NULL,
-  fishing int DEFAULT NULL,
-  firemaking int DEFAULT NULL,
-  crafting int DEFAULT NULL,
-  smithing int DEFAULT NULL,
-  mining int DEFAULT NULL,
-  herblore int DEFAULT NULL,
-  agility int DEFAULT NULL,
-  thieving int DEFAULT NULL,
-  slayer int DEFAULT NULL,
-  farming int DEFAULT NULL,
-  runecraft int DEFAULT NULL,
-  hunter int DEFAULT NULL,
-  construction int DEFAULT NULL,
-  league int DEFAULT NULL,
-  bounty_hunter_hunter int DEFAULT NULL,
-  bounty_hunter_rogue int DEFAULT NULL,
-  cs_all int DEFAULT NULL,
-  cs_beginner int DEFAULT NULL,
-  cs_easy int DEFAULT NULL,
-  cs_medium int DEFAULT NULL,
-  cs_hard int DEFAULT NULL,
-  cs_elite int DEFAULT NULL,
-  cs_master int DEFAULT NULL,
-  lms_rank int DEFAULT NULL,
-  soul_wars_zeal int DEFAULT NULL,
-  abyssal_sire int DEFAULT NULL,
-  alchemical_hydra int DEFAULT NULL,
-  barrows_chests int DEFAULT NULL,
-  bryophyta int DEFAULT NULL,
-  callisto int DEFAULT NULL,
-  cerberus int DEFAULT NULL,
-  chambers_of_xeric int DEFAULT NULL,
-  chambers_of_xeric_challenge_mode int DEFAULT NULL,
-  chaos_elemental int DEFAULT NULL,
-  chaos_fanatic int DEFAULT NULL,
-  commander_zilyana int DEFAULT NULL,
-  corporeal_beast int DEFAULT NULL,
-  crazy_archaeologist int DEFAULT NULL,
-  dagannoth_prime int DEFAULT NULL,
-  dagannoth_rex int DEFAULT NULL,
-  dagannoth_supreme int DEFAULT NULL,
-  deranged_archaeologist int DEFAULT NULL,
-  general_graardor int DEFAULT NULL,
-  giant_mole int DEFAULT NULL,
-  grotesque_guardians int DEFAULT NULL,
-  hespori int DEFAULT NULL,
-  kalphite_queen int DEFAULT NULL,
-  king_black_dragon int DEFAULT NULL,
-  kraken int DEFAULT NULL,
-  kreearra int DEFAULT NULL,
-  kril_tsutsaroth int DEFAULT NULL,
-  mimic int DEFAULT NULL,
-  nex int DEFAULT NULL,
-  nightmare int DEFAULT NULL,
-  obor int DEFAULT NULL,
-  phantom_muspah int DEFAULT NULL,
-  phosanis_nightmare int DEFAULT NULL,
-  sarachnis int DEFAULT NULL,
-  scorpia int DEFAULT NULL,
-  skotizo int DEFAULT NULL,
-  Tempoross int DEFAULT NULL,
-  the_gauntlet int DEFAULT NULL,
-  the_corrupted_gauntlet int DEFAULT NULL,
-  theatre_of_blood int DEFAULT NULL,
-  theatre_of_blood_hard int DEFAULT NULL,
-  thermonuclear_smoke_devil int DEFAULT NULL,
-  tzkal_zuk int DEFAULT NULL,
-  tztok_jad int DEFAULT NULL,
-  venenatis int DEFAULT NULL,
-  vetion int DEFAULT NULL,
-  vorkath int DEFAULT NULL,
-  wintertodt int DEFAULT NULL,
-  zalcano int DEFAULT NULL,
-  zulrah int DEFAULT NULL,
-  rifts_closed int DEFAULT '0',
-  artio int DEFAULT '0',
-  calvarion int DEFAULT '0',
-  duke_sucellus int DEFAULT '0',
-  spindel int DEFAULT '0',
-  the_leviathan int DEFAULT '0',
-  the_whisperer int DEFAULT '0',
-  vardorvis int DEFAULT '0',
-  PRIMARY KEY (id),
-  KEY IDX_xpChange_Player_id_timestamp (Player_id,timestamp) USING BTREE,
-  KEY IDX_xpChange_Player_id_ts_date (Player_id,ts_date) USING BTREE,
-  CONSTRAINT fk_phd_xp_pl FOREIGN KEY (Player_id) REFERENCES Players (id) ON DELETE RESTRICT ON UPDATE RESTRICT
+/*
+-- V3
+*/
+CREATE TABLE skill (
+    skill_id tinyint unsigned NOT NULL AUTO_INCREMENT,
+    skill_name varchar(50) NOT NULL,
+    PRIMARY KEY (skill_id),
+    UNIQUE KEY unique_skill_name (skill_name)
 );
 
-CREATE TABLE `scraper_data` (
-  `scraper_id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `player_id` int unsigned NOT NULL,
-  `record_date` date GENERATED ALWAYS AS (cast(`created_at` as date)) STORED,
-  PRIMARY KEY (`scraper_id`),
-  UNIQUE KEY `unique_player_per_day` (`player_id`,`record_date`)
+CREATE TABLE activity (
+    activity_id tinyint unsigned NOT NULL AUTO_INCREMENT,
+    activity_name varchar(50) NOT NULL,
+    PRIMARY KEY (activity_id),
+    UNIQUE KEY unique_activity_name (activity_name)
 );
 
-CREATE TABLE `scraper_data_latest` (
-  `scraper_id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `record_date` date GENERATED ALWAYS AS (cast(`created_at` as date)) STORED,
-  `player_id` int unsigned NOT NULL,
-  PRIMARY KEY (`player_id`),
-  KEY `idx_scraper_id` (`scraper_id`),
-  KEY `idx_record_date` (`record_date`)
+CREATE TABLE player_skill (
+    player_skill_id BIGINT unsigned NOT NULL AUTO_INCREMENT,
+    skill_id tinyint unsigned NOT NULL,
+    skill_value int unsigned NOT NULL DEFAULT '0',
+    PRIMARY KEY (player_skill_id),
+    UNIQUE KEY unique_skill_value (skill_id, skill_value)
 );
 
-
-
-CREATE TABLE skills (
-  skill_id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, # < 255
-  skill_name VARCHAR(50) NOT NULL,
-  UNIQUE KEY unique_skill_name (skill_name)
-);
-CREATE TABLE activities (
-  activity_id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, # < 255
-  activity_name VARCHAR(50) NOT NULL,
-  UNIQUE KEY unique_activity_name (activity_name)
+CREATE TABLE player_activity (
+    player_activity_id bigint unsigned NOT NULL AUTO_INCREMENT,
+    activity_id tinyint unsigned NOT NULL,
+    activity_value int unsigned NOT NULL DEFAULT '0',
+    PRIMARY KEY (player_activity_id),
+    UNIQUE KEY unique_activity_value (activity_id, activity_value)
 );
 
-
-CREATE TABLE player_skills (
-  scraper_id BIGINT UNSIGNED NOT NULL,
-  skill_id TINYINT UNSIGNED NOT NULL,
-  skill_value INT UNSIGNED NOT NULL DEFAULT 0, # < 200 000 000
-  FOREIGN KEY (scraper_id) REFERENCES scraper_data(scraper_id) ON DELETE CASCADE,
-  FOREIGN KEY (skill_id) REFERENCES skills(skill_id) ON DELETE CASCADE,
-  PRIMARY KEY (scraper_id, skill_id)
+CREATE TABLE scraper_data_v3 (
+    scrape_id bigint unsigned NOT NULL AUTO_INCREMENT,
+    scrape_ts DATETIME NOT NULL,
+    scrape_date DATE NOT NULL,
+    player_id INT NOT NULL,
+    PRIMARY KEY (scrape_id),
+    UNIQUE KEY unique_player_scrape (player_id, scrape_date),
+    INDEX idx_scrape_ts (scrape_ts)
 );
 
-CREATE TABLE player_activities (
-  scraper_id BIGINT UNSIGNED NOT NULL,
-  activity_id TINYINT UNSIGNED NOT NULL,
-  activity_value INT UNSIGNED NOT NULL DEFAULT 0, # some guy could get over 65k kc
-  FOREIGN KEY (scraper_id) REFERENCES scraper_data(scraper_id) ON DELETE CASCADE,
-  FOREIGN KEY (activity_id) REFERENCES activities(activity_id) ON DELETE CASCADE,
-  PRIMARY KEY (scraper_id, activity_id)
-);
-
-
-DELIMITER //
-
-CREATE TRIGGER `sd_latest` AFTER INSERT ON `scraper_data` FOR EACH ROW
-BEGIN
-    DECLARE latest_created_at DATETIME;
-
-    -- Get the latest created_at from scraper_data_latest for the current player_id
-    SELECT created_at INTO latest_created_at
-    FROM scraper_data_latest
-    WHERE player_id = NEW.player_id;
-
-    IF latest_created_at IS NULL THEN
-        INSERT INTO scraper_data_latest (scraper_id, created_at, player_id)
-        VALUES (NEW.scraper_id, NEW.created_at, NEW.player_id)
-        ON DUPLICATE KEY UPDATE
-            scraper_id = NEW.scraper_id,
-            created_at = NEW.created_at;
-    ELSEIF NEW.created_at > latest_created_at THEN
-        UPDATE scraper_data_latest
-        SET
-            scraper_id = NEW.scraper_id,
-            created_at = NEW.created_at
-        WHERE player_id = NEW.player_id;
-    END IF;
-END //
-
-DELIMITER ;
-
-CREATE TABLE `Labels` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `label` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `Unique_label` (`label`) USING BTREE
+CREATE TABLE scraper_player_skill (
+    scrape_id BIGINT unsigned NOT NULL,
+    player_skill_id BIGINT unsigned NOT NULL,
+    PRIMARY KEY (scrape_id, player_skill_id),
+    KEY idx_scrape_id (scrape_id),
+    KEY idx_player_skill_id (player_skill_id)
 )
-;
+PARTITION BY HASH (scrape_id) PARTITIONS 10;
+
+CREATE TABLE scraper_player_activity (
+    scrape_id BIGINT unsigned NOT NULL,
+    player_activity_id BIGINT unsigned NOT NULL,
+    PRIMARY KEY (scrape_id, player_activity_id),
+    KEY idx_scrape_id (scrape_id),
+    KEY idx_player_activity_id (player_activity_id)
+)
+PARTITION BY HASH (scrape_id) PARTITIONS 10;
