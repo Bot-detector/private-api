@@ -23,6 +23,7 @@ class ScraperDataRepo:
         player_id: int = None,
         label_id: int = None,
         many: bool = True,
+        limit: int = 1000,
     ):
         # Aliases for tables
         SDV = aliased(ScraperDataV3)
@@ -40,12 +41,22 @@ class ScraperDataRepo:
 
         # Subquery to get the latest scrape date for each player
         subquery = (
-            select(func.max(SDV.scrape_date))
-            .where(SDV.player_id == P.id)
-            .correlate(P)
-            .scalar_subquery()
+            select(func.max(SDV.scrape_date).label("max_scrape_date"), SDV.player_id)
+            .join(P, SDV.player_id == P.id)
+            .group_by(SDV.player_id)
         )
 
+        if player_id:
+            if many:
+                subquery = subquery.where(P.id > player_id)
+            else:
+                subquery = subquery.where(P.id == player_id)
+        if label_id:
+            subquery = subquery.where(P.label_id == label_id)
+
+        subquery = subquery.limit(limit)
+        subquery = subquery.subquery()
+        
         # Skill query
         skill_query = (
             select(
@@ -53,17 +64,20 @@ class ScraperDataRepo:
                 SDV.scrape_ts,
                 SDV.scrape_date,
                 SDV.player_id,
-                P.name,
                 S.skill_id.label("hs_id"),
                 S.skill_name.label("hs_name"),
                 PS.skill_value.label("hs_value"),
                 literal("skill").label("hs_type"),
             )
-            .join(P, SDV.player_id == P.id)
+            .select_from(SDV)
+            .join(
+                subquery,
+                (subquery.c.max_scrape_date == SDV.scrape_date)
+                & (subquery.c.player_id == SDV.player_id),
+            )
             .join(SPS, SDV.scrape_id == SPS.scrape_id)
             .join(PS, SPS.player_skill_id == PS.player_skill_id)
             .join(S, PS.skill_id == S.skill_id)
-            .where(SDV.scrape_date == subquery)
         )
 
         # Activity query
@@ -73,17 +87,21 @@ class ScraperDataRepo:
                 SDV.scrape_ts,
                 SDV.scrape_date,
                 SDV.player_id,
-                P.name,
+
                 A.activity_id.label("hs_id"),
                 A.activity_name.label("hs_name"),
                 PA.activity_value.label("hs_value"),
                 literal("activity").label("hs_type"),
             )
-            .join(P, SDV.player_id == P.id)
+            .select_from(SDV)
+            .join(
+                subquery,
+                (subquery.c.max_scrape_date == SDV.scrape_date)
+                & (subquery.c.player_id == SDV.player_id),
+            )
             .join(SPA, SDV.scrape_id == SPA.scrape_id)
             .join(PA, SPA.player_activity_id == PA.player_activity_id)
             .join(A, PA.activity_id == A.activity_id)
-            .where(SDV.scrape_date == subquery)
         )
 
         # Combine skill and activity queries using union_all
@@ -95,23 +113,12 @@ class ScraperDataRepo:
             combined_query.c.scrape_ts,
             combined_query.c.scrape_date,
             combined_query.c.player_id,
-            combined_query.c.name,
             combined_query.c.hs_id,
             combined_query.c.hs_name,
             combined_query.c.hs_value,
             combined_query.c.hs_type,
         ).select_from(combined_query)
-
-        # Apply filters if provided
-        if player_id:
-            if many:
-                final_query = final_query.where(P.id > player_id)
-            else:
-                final_query = final_query.where(P.id == player_id)
-
-        if label_id:
-            final_query = final_query.where(P.label_id > label_id)
-
+        
         # Execute the final query
         result = await self.session.execute(final_query)
         result_list = result.mappings().all()
