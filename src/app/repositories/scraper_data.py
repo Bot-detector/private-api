@@ -1,82 +1,118 @@
-from fastapi.encoders import jsonable_encoder
-from sqlalchemy.ext.asyncio import AsyncResult, AsyncSession
+from sqlalchemy import func, literal, select, union_all
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql.expression import Select
 
-from src.app.repositories.abstract_repo import AbstractAPI
-from src.core.database.models import Player, ScraperData, ScraperDataLatest
+from src.core.database.models.player import Player
+from src.core.database.models.scraper_data_v3 import (
+    Activity,
+    PlayerActivity,
+    PlayerSkill,
+    ScraperDataV3,
+    ScraperPlayerActivity,
+    ScraperPlayerSkill,
+    Skill,
+)
 
 
-class ScraperDataRepo(AbstractAPI):
+class ScraperDataRepo:
     def __init__(self, session: AsyncSession) -> None:
-        super().__init__()
         self.session = session
 
-    async def insert(self, id):
-        raise NotImplementedError
-
-    async def select(
+    async def select_latest_scraper_data_v3(
         self,
-        player_name: str,
-        player_id: int,
-        label_id: int,
-        many: bool,
-        limit: int,
-        history: bool = False,
-    ) -> list[dict]:
-        table = (
-            aliased(ScraperData, name="sd")
-            if history
-            else aliased(ScraperDataLatest, name="sdl")
+        player_id: int = None,
+        label_id: int = None,
+        many: bool = True,
+    ):
+        # Aliases for tables
+        SDV = aliased(ScraperDataV3)
+        P = aliased(Player)
+
+        # skill specific
+        SPS = aliased(ScraperPlayerSkill)
+        PS = aliased(PlayerSkill)
+        S = aliased(Skill)
+
+        # activity specific
+        SPA = aliased(ScraperPlayerActivity)
+        PA = aliased(PlayerActivity)
+        A = aliased(Activity)
+
+        # Subquery to get the latest scrape date for each player
+        subquery = (
+            select(func.max(SDV.scrape_date))
+            .where(SDV.player_id == P.id)
+            .correlate(P)
+            .scalar_subquery()
         )
-        player = aliased(Player, name="pl")
 
-        sql = Select(player.name, table)
-        sql = sql.join(player, table.player_id == player.id)
+        # Skill query
+        skill_query = (
+            select(
+                SDV.scrape_id,
+                SDV.scrape_ts,
+                SDV.scrape_date,
+                SDV.player_id,
+                P.name,
+                S.skill_id.label("hs_id"),
+                S.skill_name.label("hs_name"),
+                PS.skill_value.label("hs_value"),
+                literal("skill").label("hs_type"),
+            )
+            .join(P, SDV.player_id == P.id)
+            .join(SPS, SDV.scrape_id == SPS.scrape_id)
+            .join(PS, SPS.player_skill_id == PS.player_skill_id)
+            .join(S, PS.skill_id == S.skill_id)
+            .where(SDV.scrape_date == subquery)
+        )
 
+        # Activity query
+        activity_query = (
+            select(
+                SDV.scrape_id,
+                SDV.scrape_ts,
+                SDV.scrape_date,
+                SDV.player_id,
+                P.name,
+                A.activity_id.label("hs_id"),
+                A.activity_name.label("hs_name"),
+                PA.activity_value.label("hs_value"),
+                literal("activity").label("hs_type"),
+            )
+            .join(P, SDV.player_id == P.id)
+            .join(SPA, SDV.scrape_id == SPA.scrape_id)
+            .join(PA, SPA.player_activity_id == PA.player_activity_id)
+            .join(A, PA.activity_id == A.activity_id)
+            .where(SDV.scrape_date == subquery)
+        )
+
+        # Combine skill and activity queries using union_all
+        combined_query = union_all(skill_query, activity_query)
+
+        # Wrap the combined_query in a new select statement to apply additional filters
+        final_query = select(
+            combined_query.c.scrape_id,
+            combined_query.c.scrape_ts,
+            combined_query.c.scrape_date,
+            combined_query.c.player_id,
+            combined_query.c.name,
+            combined_query.c.hs_id,
+            combined_query.c.hs_name,
+            combined_query.c.hs_value,
+            combined_query.c.hs_type,
+        ).select_from(combined_query)
+
+        # Apply filters if provided
         if player_id:
             if many:
-                sql = sql.where(table.player_id >= player_id)
+                final_query = final_query.where(P.id > player_id)
             else:
-                sql = sql.where(table.player_id == player_id)
-
-        if player_name:
-            sql = sql.where(player.name == player_name)
+                final_query = final_query.where(P.id == player_id)
 
         if label_id:
-            sql = sql.where(player.label_id == label_id)
+            final_query = final_query.where(P.label_id > label_id)
 
-        sql = sql.order_by(table.player_id.asc())
-        # sql = sql.order_by(player.id.asc()) # not performant
-        sql = sql.limit(limit)
-
-        async with self.session:
-            result: AsyncResult = await self.session.execute(sql)
-            result = result.fetchall()
-        data = [{"name": name, **jsonable_encoder(r)} for name, r in result]
-        return data
-
-    async def select_history(self, player_name: str, player_id: int, many: bool):
-        table = ScraperData
-        sql = Select(table)
-
-        if player_id:
-            if many:
-                sql = sql.where(table.player_id >= player_id)
-            else:
-                sql = sql.where(table.player_id == player_id)
-
-        if player_name:
-            sql = sql.join(Player, table.player_id == Player.id)
-            sql = sql.where(Player.name == player_name)
-
-        async with self.session:
-            result: AsyncResult = await self.session.execute(sql)
-            result = result.scalars().all()
-        return jsonable_encoder(result)
-
-    async def update(self):
-        raise NotImplementedError
-
-    async def delete(self):
-        raise NotImplementedError
+        # Execute the final query
+        result = await self.session.execute(final_query)
+        result_list = result.mappings().all()
+        return result_list

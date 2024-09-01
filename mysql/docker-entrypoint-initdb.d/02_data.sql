@@ -1,109 +1,5 @@
 USE playerdata;
 
-INSERT INTO skills (skill_id, skill_name)
-VALUES
-	(2, 'attack'),
-    (3, 'defence'),
-    (4, 'strength'),
-    (5, 'hitpoints'),
-    (6, 'ranged'),
-    (7, 'prayer'),
-    (8, 'magic'),
-    (9, 'cooking'),
-    (10, 'woodcutting'),
-    (11, 'fletching'),
-    (12, 'fishing'),
-    (13, 'firemaking'),
-    (14, 'crafting'),
-    (15, 'smithing'),
-    (16, 'mining'),
-    (17, 'herblore'),
-    (18, 'agility'),
-    (19, 'thieving'),
-    (20, 'slayer'),
-    (21, 'farming'),
-    (22, 'runecraft'),
-    (23, 'hunter'),
-    (24, 'construction');
-
-INSERT INTO activities (activity_id, activity_name)
-VALUES
-	(1, 'abyssal_sire'),
-    (2, 'alchemical_hydra'),
-    (3, 'artio'),
-    (4, 'barrows_chests'),
-    (5, 'bounty_hunter_hunter'),
-    (6, 'bounty_hunter_rogue'),
-    (7, 'bryophyta'),
-    (8, 'callisto'),
-    (9, 'calvarion'),
-    (10, 'cerberus'),
-    (11, 'chambers_of_xeric'),
-    (
-        12, 'chambers_of_xeric_challenge_mode'
-    ),
-    (13, 'chaos_elemental'),
-    (14, 'chaos_fanatic'),
-    (15, 'commander_zilyana'),
-    (16, 'corporeal_beast'),
-    (17, 'crazy_archaeologist'),
-    (18, 'cs_all'),
-    (19, 'cs_beginner'),
-    (20, 'cs_easy'),
-    (21, 'cs_elite'),
-    (22, 'cs_hard'),
-    (23, 'cs_master'),
-    (24, 'cs_medium'),
-    (25, 'dagannoth_prime'),
-    (26, 'dagannoth_rex'),
-    (27, 'dagannoth_supreme'),
-    (28, 'deranged_archaeologist'),
-    (29, 'duke_sucellus'),
-    (30, 'general_graardor'),
-    (31, 'giant_mole'),
-    (32, 'grotesque_guardians'),
-    (33, 'hespori'),
-    (34, 'kalphite_queen'),
-    (35, 'king_black_dragon'),
-    (36, 'kraken'),
-    (37, 'kreearra'),
-    (38, 'kril_tsutsaroth'),
-    (39, 'league'),
-    (40, 'lms_rank'),
-    (41, 'mimic'),
-    (42, 'nex'),
-    (43, 'nightmare'),
-    (44, 'obor'),
-    (45, 'phantom_muspah'),
-    (46, 'phosanis_nightmare'),
-    (47, 'rifts_closed'),
-    (48, 'sarachnis'),
-    (49, 'scorpia'),
-    (50, 'skotizo'),
-    (51, 'soul_wars_zeal'),
-    (52, 'spindel'),
-    (53, 'tempoross'),
-    (54, 'the_corrupted_gauntlet'),
-    (55, 'the_gauntlet'),
-    (56, 'the_leviathan'),
-    (57, 'the_whisperer'),
-    (58, 'theatre_of_blood'),
-    (59, 'theatre_of_blood_hard'),
-    (
-        60, 'thermonuclear_smoke_devil'
-    ),
-    (61, 'tombs_of_amascut'),
-    (62, 'tombs_of_amascut_expert'),
-    (63, 'tzkal_zuk'),
-    (64, 'tztok_jad'),
-    (65, 'vardorvis'),
-    (66, 'venenatis'),
-    (67, 'vetion'),
-    (68, 'vorkath'),
-    (69, 'wintertodt'),
-    (70, 'zalcano'),
-    (71, 'zulrah');
-
 INSERT INTO Labels (id, label)
 VALUES
     (1, 'Real_Player'),
@@ -149,3 +45,29 @@ VALUES
 
 INSERT INTO Labels (label) VALUES ("Unkown");
 UPDATE Labels set id=0 where label="Unkown";
+
+
+INSERT INTO skill (skill_name) VALUES
+('attack'), ('defence'), ('strength'), ('hitpoints'), ('ranged'), ('prayer'),
+('magic'), ('cooking'), ('woodcutting'), ('fletching'), ('fishing'), ('firemaking'),
+('crafting'), ('smithing'), ('mining'), ('herblore'), ('agility'), ('thieving'),
+('slayer'), ('farming'), ('runecraft'), ('hunter'), ('construction')
+;
+
+INSERT INTO activity (activity_name) VALUES
+('league'), ('bounty_hunter_hunter'), ('bounty_hunter_rogue'), ('cs_all'), ('cs_beginner'),
+('cs_easy'), ('cs_medium'), ('cs_hard'), ('cs_elite'), ('cs_master'), ('lms_rank'),
+('soul_wars_zeal'), ('abyssal_sire'), ('alchemical_hydra'), ('barrows_chests'), ('bryophyta'),
+('callisto'), ('cerberus'), ('chambers_of_xeric'), ('chambers_of_xeric_challenge_mode'),
+('chaos_elemental'), ('chaos_fanatic'), ('commander_zilyana'), ('corporeal_beast'),
+('crazy_archaeologist'), ('dagannoth_prime'), ('dagannoth_rex'), ('dagannoth_supreme'),
+('deranged_archaeologist'), ('general_graardor'), ('giant_mole'), ('grotesque_guardians'),
+('hespori'), ('kalphite_queen'), ('king_black_dragon'), ('kraken'), ('kreearra'),
+('kril_tsutsaroth'), ('mimic'), ('nightmare'), ('nex'), ('phosanis_nightmare'), ('obor'),
+('phantom_muspah'), ('sarachnis'), ('scorpia'), ('skotizo'), ('tempoross'), ('the_gauntlet'),
+('the_corrupted_gauntlet'), ('theatre_of_blood'), ('theatre_of_blood_hard'),
+('thermonuclear_smoke_devil'), ('tombs_of_amascut'), ('tombs_of_amascut_expert'), ('tzkal_zuk'),
+('tztok_jad'), ('venenatis'), ('vetion'), ('vorkath'), ('wintertodt'), ('zalcano'), ('zulrah'),
+('rifts_closed'), ('artio'), ('calvarion'), ('duke_sucellus'), ('spindel'), ('the_leviathan'),
+('the_whisperer'), ('vardorvis')
+;
