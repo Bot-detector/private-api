@@ -56,7 +56,7 @@ class ScraperDataRepo:
 
         subquery = subquery.limit(limit)
         subquery = subquery.subquery()
-
+        
         # Skill query
         skill_query = (
             select(
@@ -87,6 +87,7 @@ class ScraperDataRepo:
                 SDV.scrape_ts,
                 SDV.scrape_date,
                 SDV.player_id,
+
                 A.activity_id.label("hs_id"),
                 A.activity_name.label("hs_name"),
                 PA.activity_value.label("hs_value"),
@@ -117,7 +118,7 @@ class ScraperDataRepo:
             combined_query.c.hs_value,
             combined_query.c.hs_type,
         ).select_from(combined_query)
-
+        
         # Execute the final query
         result = await self.session.execute(final_query)
         result_list = result.mappings().all()
