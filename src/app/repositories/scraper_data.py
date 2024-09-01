@@ -64,6 +64,7 @@ class ScraperDataRepo:
                 SDV.scrape_ts,
                 SDV.scrape_date,
                 SDV.player_id,
+                P.name.label("player_name"),
                 S.skill_id.label("hs_id"),
                 S.skill_name.label("hs_name"),
                 PS.skill_value.label("hs_value"),
@@ -75,6 +76,7 @@ class ScraperDataRepo:
                 (subquery.c.max_scrape_date == SDV.scrape_date)
                 & (subquery.c.player_id == SDV.player_id),
             )
+            .join(P, SDV.player_id == P.id)
             .join(SPS, SDV.scrape_id == SPS.scrape_id)
             .join(PS, SPS.player_skill_id == PS.player_skill_id)
             .join(S, PS.skill_id == S.skill_id)
@@ -87,6 +89,7 @@ class ScraperDataRepo:
                 SDV.scrape_ts,
                 SDV.scrape_date,
                 SDV.player_id,
+                P.name.label("player_name"),
                 A.activity_id.label("hs_id"),
                 A.activity_name.label("hs_name"),
                 PA.activity_value.label("hs_value"),
@@ -98,6 +101,7 @@ class ScraperDataRepo:
                 (subquery.c.max_scrape_date == SDV.scrape_date)
                 & (subquery.c.player_id == SDV.player_id),
             )
+            .join(P, SDV.player_id == P.id)
             .join(SPA, SDV.scrape_id == SPA.scrape_id)
             .join(PA, SPA.player_activity_id == PA.player_activity_id)
             .join(A, PA.activity_id == A.activity_id)
@@ -112,6 +116,7 @@ class ScraperDataRepo:
             combined_query.c.scrape_ts,
             combined_query.c.scrape_date,
             combined_query.c.player_id,
+            combined_query.c.player_name,
             combined_query.c.hs_id,
             combined_query.c.hs_name,
             combined_query.c.hs_value,

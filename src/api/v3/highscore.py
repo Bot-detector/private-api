@@ -26,6 +26,7 @@ def convert_to_scraper_data_view(result_list: list[dict]) -> list[ScraperDataVie
             scraper_data["record_date"] = row["scrape_date"]
             scraper_data["scraper_id"] = scraper_id
             scraper_data["player_id"] = row["player_id"]
+            scraper_data["player_name"] = row["player_name"]
 
         # Append to skills or activities based on hs_type
         if row["hs_type"] == "skill":
@@ -46,6 +47,7 @@ def convert_to_scraper_data_view(result_list: list[dict]) -> list[ScraperDataVie
             record_date=data["record_date"],
             scraper_id=data["scraper_id"],
             player_id=data["player_id"],
+            player_name=data["player_name"],
             skills=data["skills"],
             activities=data["activities"],
         )

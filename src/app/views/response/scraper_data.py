@@ -18,5 +18,6 @@ class ScraperDataView(BaseModel):
     record_date: date
     scraper_id: int
     player_id: int
+    player_name: str
     skills: list[SkillView]
     activities: list[ActivityView]
