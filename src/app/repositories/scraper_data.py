@@ -1,26 +1,118 @@
-async def select_scraper_data_v3(session, player_name: str):
-    sql = """
-        SELECT
-            sdv.scrape_id ,
-            sdv.scrape_ts ,
-            sdv.scrape_date,
-            sdv.player_id ,
-            p.name,
-            s.skill_id ,
-            s.skill_name ,
-            ps.skill_value
-        FROM  scraper_data_v3 sdv
-        JOIN Players p on sdv.player_id =p.id
-        LEFT JOIN scraper_player_skill sps on sdv.scrape_id = sps.scrape_id
-        LEFT JOIN player_skill ps on sps.player_skill_id =ps.player_skill_id
-        LEFT JOIN skill s on ps.skill_id =s.skill_id
-        WHERE 1
-            AND p.name = :player_name
-            AND sdv.scrape_date = (
-                SELECT
-                    MAX(scrape_date)
-                FROM scraper_data_v3
-                WHERE player_id=p.id
-                )
-        ;
-    """
+from sqlalchemy import func, literal, select, union_all
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
+
+from src.core.database.models.player import Player
+from src.core.database.models.scraper_data_v3 import (
+    Activity,
+    PlayerActivity,
+    PlayerSkill,
+    ScraperDataV3,
+    ScraperPlayerActivity,
+    ScraperPlayerSkill,
+    Skill,
+)
+
+
+class ScraperDataRepo:
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def select_latest_scraper_data_v3(
+        self,
+        player_id: int = None,
+        label_id: int = None,
+        many: bool = True,
+    ):
+        # Aliases for tables
+        SDV = aliased(ScraperDataV3)
+        P = aliased(Player)
+
+        # skill specific
+        SPS = aliased(ScraperPlayerSkill)
+        PS = aliased(PlayerSkill)
+        S = aliased(Skill)
+
+        # activity specific
+        SPA = aliased(ScraperPlayerActivity)
+        PA = aliased(PlayerActivity)
+        A = aliased(Activity)
+
+        # Subquery to get the latest scrape date for each player
+        subquery = (
+            select(func.max(SDV.scrape_date))
+            .where(SDV.player_id == P.id)
+            .correlate(P)
+            .scalar_subquery()
+        )
+
+        # Skill query
+        skill_query = (
+            select(
+                SDV.scrape_id,
+                SDV.scrape_ts,
+                SDV.scrape_date,
+                SDV.player_id,
+                P.name,
+                S.skill_id.label("hs_id"),
+                S.skill_name.label("hs_name"),
+                PS.skill_value.label("hs_value"),
+                literal("skill").label("hs_type"),
+            )
+            .join(P, SDV.player_id == P.id)
+            .join(SPS, SDV.scrape_id == SPS.scrape_id)
+            .join(PS, SPS.player_skill_id == PS.player_skill_id)
+            .join(S, PS.skill_id == S.skill_id)
+            .where(SDV.scrape_date == subquery)
+        )
+
+        # Activity query
+        activity_query = (
+            select(
+                SDV.scrape_id,
+                SDV.scrape_ts,
+                SDV.scrape_date,
+                SDV.player_id,
+                P.name,
+                A.activity_id.label("hs_id"),
+                A.activity_name.label("hs_name"),
+                PA.activity_value.label("hs_value"),
+                literal("activity").label("hs_type"),
+            )
+            .join(P, SDV.player_id == P.id)
+            .join(SPA, SDV.scrape_id == SPA.scrape_id)
+            .join(PA, SPA.player_activity_id == PA.player_activity_id)
+            .join(A, PA.activity_id == A.activity_id)
+            .where(SDV.scrape_date == subquery)
+        )
+
+        # Combine skill and activity queries using union_all
+        combined_query = union_all(skill_query, activity_query)
+
+        # Wrap the combined_query in a new select statement to apply additional filters
+        final_query = select(
+            combined_query.c.scrape_id,
+            combined_query.c.scrape_ts,
+            combined_query.c.scrape_date,
+            combined_query.c.player_id,
+            combined_query.c.name,
+            combined_query.c.hs_id,
+            combined_query.c.hs_name,
+            combined_query.c.hs_value,
+            combined_query.c.hs_type,
+        ).select_from(combined_query)
+
+        # Apply filters if provided
+        if player_id:
+            if many:
+                final_query = final_query.where(P.id > player_id)
+            else:
+                final_query = final_query.where(P.id == player_id)
+
+        if label_id:
+            final_query = final_query.where(P.label_id > label_id)
+
+        # Execute the final query
+        result = await self.session.execute(final_query)
+        result_list = result.mappings().all()
+        return result_list

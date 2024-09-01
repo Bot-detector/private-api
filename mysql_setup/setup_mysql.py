@@ -1,7 +1,17 @@
 import random
 from datetime import datetime, timedelta
 
-from models import Labels, Players, Report, session
+from models import (
+    Labels,
+    PlayerActivity,
+    Players,
+    PlayerSkill,
+    Report,
+    ScraperDataV3,
+    ScraperPlayerActivity,
+    ScraperPlayerSkill,
+    session,
+)
 from sqlalchemy.exc import IntegrityError
 
 
@@ -80,6 +90,11 @@ def insert_reports(len_reports, len_players):
             session.rollback()  # Rollback the transaction if a duplicate entry is encountered
         finally:
             session.commit()
+
+
+def generate_random_scraper_data(len_scrapers, len_players, skill_ids, activity_ids):
+    # TODO:
+    ...
 
 
 def main():
