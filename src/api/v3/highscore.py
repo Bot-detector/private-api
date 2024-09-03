@@ -68,5 +68,6 @@ async def get_highscore_latest(
         player_id=player_id,
         label_id=label_id,
         many=many,
+        limit=limit,
     )
     return convert_to_scraper_data_view(result_list=data)
