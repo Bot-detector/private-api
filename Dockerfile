@@ -1,5 +1,8 @@
 FROM python:3.11-slim as base
 
+# Install uv.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 ARG api_port
 ENV UVICORN_PORT ${api_port}
 
@@ -16,8 +19,12 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /project
 
 # install dependencies
-COPY ./requirements.txt /project
-RUN pip install --no-cache-dir -r requirements.txt
+# COPY ./requirements.txt /project
+# RUN pip install --no-cache-dir -r requirements.txt
+COPY ./uv.lock /project
+COPY ./pyproject.toml /project
+RUN uv sync --frozen --no-cache
+
 
 # copy the scripts to the folder
 COPY ./src /project/src
@@ -28,4 +35,4 @@ FROM base as production
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /project
 USER appuser
 
-CMD ["uvicorn", "src.core.server:app", "--proxy-headers", "--host", "0.0.0.0"]
+CMD [".venv/bin/uvicorn", "src.core.server:app", "--proxy-headers", "--host", "0.0.0.0"]

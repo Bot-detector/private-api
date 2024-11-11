@@ -3,13 +3,8 @@ from datetime import datetime, timedelta
 
 from models import (
     Labels,
-    PlayerActivity,
     Players,
-    PlayerSkill,
     Report,
-    ScraperDataV3,
-    ScraperPlayerActivity,
-    ScraperPlayerSkill,
     session,
 )
 from sqlalchemy.exc import IntegrityError

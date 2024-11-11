@@ -42,3 +42,11 @@ call pip install -r requirements.txt --upgrade
 call pip freeze > requirements.txt
 powershell "(Get-Content requirements.txt) | ForEach-Object { $_ -replace '>=', '==' } | Set-Content requirements.txt"
 ```
+
+```
+uv venv .venv
+source .venv/bin/activate
+# uv add uvicorn fastapi
+uv sync
+uv pip compile pyproject.toml -o requirements.txt
+```

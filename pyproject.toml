@@ -1,0 +1,23 @@
+[project]
+name = "private-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiokafka>=0.12.0",
+    "aiomysql>=0.2.0",
+    "fastapi>=0.115.4",
+    "pydantic-settings>=2.6.1",
+    "pydantic>=2.9.2",
+    "sqlalchemy>=2.0.36",
+    "uvicorn>=0.32.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.7.3",
+    "pre-commit>=4.0.1",
+]
