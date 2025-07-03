@@ -64,10 +64,10 @@ async def get_highscore_latest(
     session=Depends(get_session),
 ):
     repo = ScraperDataRepo(session=session)
-    data = await repo.select_latest_scraper_data_v3(
+    data = await repo.selecht_highscore_data_latest_v4(
         player_id=player_id,
         label_id=label_id,
         many=many,
         limit=limit,
     )
-    return convert_to_scraper_data_view(result_list=data)
+    return data

@@ -252,3 +252,53 @@ CREATE TABLE scraper_player_activity (
     KEY idx_player_activity_id (player_activity_id)
 )
 PARTITION BY HASH (scrape_id) PARTITIONS 10;
+
+
+
+-- new tables
+CREATE TABLE highscore_data_latest (
+  player_id INT UNSIGNED NOT NULL,
+  scrape_date DATE NOT NULL,
+  scrape_year SMALLINT UNSIGNED AS (YEAR(scrape_date)) STORED NOT NULL,
+  scrape_month TINYINT UNSIGNED AS (MONTH(scrape_date)) STORED NOT NULL,
+  scrape_week TINYINT UNSIGNED AS (WEEK(scrape_date, 3)) STORED NOT NULL,
+  skills JSON DEFAULT NULL,
+  activities JSON DEFAULT NULL,
+  PRIMARY KEY (player_id)
+) PARTITION BY HASH (player_id) PARTITIONS 10;
+
+CREATE TABLE highscore_data_daily (
+  player_id INT UNSIGNED NOT NULL,
+  scrape_date DATE NOT NULL,
+  time_to_live DATE NOT NULL,
+  scrape_year SMALLINT UNSIGNED AS (YEAR(scrape_date)) STORED NOT NULL,
+  scrape_month TINYINT UNSIGNED AS (MONTH(scrape_date)) STORED NOT NULL,
+  scrape_week TINYINT UNSIGNED AS (WEEK(scrape_date, 3)) STORED NOT NULL,
+  skills JSON DEFAULT NULL,
+  activities JSON DEFAULT NULL,
+  PRIMARY KEY (player_id, scrape_date)
+) PARTITION BY HASH (player_id) PARTITIONS 10;
+
+CREATE TABLE highscore_data_weekly (
+  player_id INT UNSIGNED NOT NULL,
+  scrape_date DATE NOT NULL,
+  time_to_live DATE NOT NULL,
+  scrape_year SMALLINT UNSIGNED AS (YEAR(scrape_date)) STORED NOT NULL,
+  scrape_month TINYINT UNSIGNED AS (MONTH(scrape_date)) STORED NOT NULL,
+  scrape_week TINYINT UNSIGNED AS (WEEK(scrape_date, 3)) STORED NOT NULL,
+  skills JSON DEFAULT NULL,
+  activities JSON DEFAULT NULL,
+  PRIMARY KEY (player_id, scrape_year, scrape_week)
+) PARTITION BY HASH (player_id) PARTITIONS 10;
+
+CREATE TABLE highscore_data_monthly (
+  player_id INT UNSIGNED NOT NULL,
+  scrape_date DATE NOT NULL,
+  time_to_live DATE NOT NULL,
+  scrape_year SMALLINT UNSIGNED AS (YEAR(scrape_date)) STORED NOT NULL,
+  scrape_month TINYINT UNSIGNED AS (MONTH(scrape_date)) STORED NOT NULL,
+  scrape_week TINYINT UNSIGNED AS (WEEK(scrape_date, 3)) STORED NOT NULL,
+  skills JSON DEFAULT NULL,
+  activities JSON DEFAULT NULL,
+  PRIMARY KEY (player_id, scrape_year, scrape_month)
+) PARTITION BY HASH (player_id) PARTITIONS 10;

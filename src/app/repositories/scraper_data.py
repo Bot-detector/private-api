@@ -1,7 +1,11 @@
+import logging
+
 from sqlalchemy import func, literal, select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
+from src.app.views.response.scraper_data import ActivityView, ScraperDataView, SkillView
+from src.core.database.models.highscore_data_v4 import HighscoreDataLatestTableStruct
 from src.core.database.models.player import Player
 from src.core.database.models.scraper_data_v3 import (
     Activity,
@@ -13,10 +17,68 @@ from src.core.database.models.scraper_data_v3 import (
     Skill,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class ScraperDataRepo:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+
+    async def selecht_highscore_data_latest_v4(
+        self,
+        player_id: int | None = None,
+        label_id: int | None = None,
+        many: bool = True,
+        limit: int = 1000,
+    ) -> list[ScraperDataView]:
+        """ """
+        player = aliased(Player)
+        highscore = aliased(HighscoreDataLatestTableStruct)
+
+        query = select(
+            player.id.label("player_id"),
+            player.name.label("player_name"),
+            highscore.scrape_date,
+            highscore.skills,
+            highscore.activities,
+        ).join(highscore, player.id == highscore.player_id)
+
+        if player_id and many:
+            query = query.where(player.id >= player_id)
+        elif player_id and not many:
+            query = query.where(player.id == player_id)
+
+        if label_id:
+            query = query.where(player.label_id == label_id)
+
+        query = query.order_by(player.id.asc()).limit(limit)
+
+        result = await self.session.execute(query)
+        # Fetch all results as a list of dictionaries
+        result_list = result.mappings().all()
+
+        parsed_result = []
+        for item in result_list:
+            _item = dict(item)  # Convert to a mutable dict
+            logger.info(f"Processing item: {type(_item)}{_item}")
+            scrape_date = _item.pop("scrape_date")
+            scraper_data_view = ScraperDataView(
+                created_at=scrape_date,
+                record_date=scrape_date,
+                scraper_id=0,  # Assuming scraper_id is not used in this context
+                player_id=_item.pop("player_id"),
+                player_name=_item.pop("player_name"),
+                skills=[
+                    SkillView(skill_name=k, skill_value=v)
+                    for k, v in _item.pop("skills", {}).items()
+                ],
+                activities=[
+                    ActivityView(activity_name=k, activity_value=v)
+                    for k, v in _item.pop("activities", {}).items()
+                ],
+            )
+            parsed_result.append(scraper_data_view)
+        return parsed_result
 
     async def select_latest_scraper_data_v3(
         self,
