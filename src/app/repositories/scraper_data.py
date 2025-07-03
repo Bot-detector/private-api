@@ -60,7 +60,7 @@ class ScraperDataRepo:
         parsed_result = []
         for item in result_list:
             _item = dict(item)  # Convert to a mutable dict
-            logger.info(f"Processing item: {type(_item)}{_item}")
+            # logger.info(f"Processing item: {type(_item)}{_item}")
             scrape_date = _item.pop("scrape_date")
             scraper_data_view = ScraperDataView(
                 created_at=scrape_date,
